@@ -76,7 +76,6 @@ The Meetup page listed this current board on August 25, 2026:
 - [Women In Product Chicago](https://womenpm.org/join-our-community/chicago/)
 - [Chicago Product Alliance](https://chicagoproduct.org/)
 - [ProductTank Chicago](https://www.meetup.com/producttank-chicago/)
-- [Cognizant Chicago](https://www.cognizant.com/us/en)
 
 ### Listed in the values document
 
