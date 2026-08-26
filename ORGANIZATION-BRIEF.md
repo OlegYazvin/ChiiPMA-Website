@@ -69,6 +69,21 @@ The Meetup page listed this current board on August 25, 2026:
 | Omar Bennani | Event Planning Leader |
 | Peter Caron | Advisor |
 
+## Community Facilitators
+
+ChiPMA calls its event and community volunteers **Community Facilitators**. The initial public roster, confirmed from the supplied LinkedIn profiles on August 25, 2026, is:
+
+| Name | Profile |
+| --- | --- |
+| Lavanya Mathur | <https://www.linkedin.com/in/lavanyamathur/> |
+| Rayna Monforti | <https://www.linkedin.com/in/raynamonforti/> |
+| Chad Davis | <https://www.linkedin.com/in/cdavispm/> |
+| Ravneet Kaur | <https://www.linkedin.com/in/ravneetkaur2423/> |
+| Parul Mahajan | <https://www.linkedin.com/in/parulmahajan03/> |
+| Oleg Yazvin | <https://www.linkedin.com/in/oleg-yazvin/> |
+
+Their current LinkedIn profile photos are stored locally in `assets/facilitators/` so the website does not rely on expiring LinkedIn image URLs.
+
 ## Partners
 
 ### Listed on Meetup
