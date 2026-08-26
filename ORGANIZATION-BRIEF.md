@@ -90,6 +90,7 @@ The two lists do not fully match. The initial website uses the more recent Meetu
 ## Public Channels
 
 - **Meetup:** <https://www.meetup.com/chipma/>
+- **Slack:** <https://join.slack.com/t/chipma/shared_invite/zt-3gkw557p2-MZpp4P0KhVTKX77RwOzKVw>
 - **Instagram:** <https://www.instagram.com/chicagopma/>
 - **LinkedIn company page:** <https://www.linkedin.com/company/115414334/>
 - **LinkedIn group listed on Meetup:** <https://www.linkedin.com/groups/127176/>
@@ -113,7 +114,7 @@ The supplied LinkedIn URL was an administrator dashboard and requires a signed-i
 - Whether the 114-event total includes the complete organization history.
 - Current leadership roles and ordering.
 - Current official partner roster.
-- Whether Facebook, X, Medium, the legacy LinkedIn group, and any Slack community are still actively maintained.
+- Whether Facebook, X, Medium, and the legacy LinkedIn group are still actively maintained.
 - A public contact email for event proposals, partnership inquiries, and accessibility requests.
 - Whether the organization has a code of conduct, photo policy, sponsorship policy, or event refund policy that should be published.
 
