@@ -437,10 +437,6 @@ a {
   object-position: center 5%;
 }
 
-.photo-workshop img {
-  object-position: center 52%;
-}
-
 .photo-grid figcaption {
   padding-top: 0.65rem;
   color: var(--muted);
