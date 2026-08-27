@@ -2,6 +2,19 @@
 
 This project is ready to publish as a plain static site. No package installation or build step is required.
 
+## Live Deployment
+
+The site was deployed and fully verified on August 26, 2026:
+
+- **Production site:** <https://chipma.org/>
+- **Repository:** <https://github.com/OlegYazvin/ChiiPMA-Website>
+- **Publishing source:** `main` branch, repository root
+- **Canonical hostname:** `chipma.org`; `www.chipma.org` redirects to the apex domain
+- **DNS:** Cloudflare DNS-only records resolve both hostnames to GitHub Pages
+- **HTTPS:** Enforced by GitHub Pages with a Let's Encrypt certificate covering `chipma.org` and `www.chipma.org`
+
+Future pushes to `main` deploy automatically through GitHub Pages.
+
 ## Before Publishing
 
 1. Open `index.html` in a browser and review the copy, partner list, and outbound links.
@@ -115,16 +128,16 @@ GitHub Pages will redeploy automatically after each push to `main`.
 
 - [ ] All page copy, leaders, and partners reviewed
 - [ ] Public contact method added when available
-- [ ] Repository created and pushed to `main`
-- [ ] GitHub Pages publishing from `main` and `/(root)`
-- [ ] Temporary `github.io` URL tested
+- [x] Repository created and pushed to `main`
+- [x] GitHub Pages publishing from `main` and `/(root)`
+- [x] Temporary `github.io` URL tested
 - [ ] Domain verified with GitHub TXT record
-- [ ] `chipma.org` saved in repository Pages settings
-- [ ] Cloudflare web DNS records added as DNS-only
-- [ ] `https://chipma.org` loads with a valid certificate
-- [ ] `https://www.chipma.org` redirects correctly
-- [ ] Meetup, Instagram, LinkedIn, partner, and footer links tested
-- [ ] Mobile layout and keyboard navigation checked
+- [x] `chipma.org` saved in repository Pages settings
+- [x] Cloudflare web DNS records added as DNS-only
+- [x] `https://chipma.org` loads with a valid certificate
+- [x] `https://www.chipma.org` redirects correctly
+- [x] Meetup, Instagram, LinkedIn, partner, and footer links tested
+- [x] Mobile layout and keyboard navigation checked
 
 ## Official References
 
