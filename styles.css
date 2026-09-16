@@ -60,7 +60,6 @@ textarea {
 h1,
 h2,
 h3,
-.brand-name,
 .stat strong,
 .value-number {
   font-family: var(--font-display);
@@ -122,44 +121,10 @@ a {
   text-decoration: none;
 }
 
-.brand-mark {
-  position: relative;
-  display: inline-block;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  overflow: hidden;
-  background: var(--cyan);
-  border: 2px solid var(--white);
-  border-radius: 8px;
-}
-
-.brand-mark::before {
-  position: absolute;
-  top: 50%;
-  right: -1px;
-  width: 25px;
-  height: 12px;
-  background: var(--navy);
-  content: "";
-  transform: translateY(-50%);
-}
-
-.brand-mark span {
-  position: absolute;
-  z-index: 1;
-  top: 50%;
-  left: 10px;
-  width: 14px;
-  height: 14px;
-  background: var(--navy);
-  border-radius: 50%;
-  transform: translateY(-50%);
-}
-
-.brand-name {
-  font-size: 1.45rem;
-  font-weight: 800;
+.brand-logo {
+  display: block;
+  width: clamp(144px, 16vw, 190px);
+  height: auto;
 }
 
 .site-nav {
@@ -751,21 +716,11 @@ a {
   background: #04111e;
 }
 
-.footer-brand .brand-mark {
-  width: 34px;
-  height: 34px;
-  flex-basis: 34px;
-}
-
-.footer-brand .brand-mark::before {
-  width: 20px;
-  height: 10px;
-}
-
-.footer-brand .brand-mark span {
-  left: 8px;
-  width: 12px;
-  height: 12px;
+.footer-logo {
+  display: block;
+  width: 30px;
+  height: auto;
+  flex: 0 0 30px;
 }
 
 .footer-brand strong,
@@ -855,14 +810,8 @@ a {
     padding: 0 1rem;
   }
 
-  .brand-mark {
-    width: 36px;
-    height: 36px;
-    flex-basis: 36px;
-  }
-
-  .brand-name {
-    font-size: 1.25rem;
+  .brand-logo {
+    width: 140px;
   }
 
   .nav-action {
