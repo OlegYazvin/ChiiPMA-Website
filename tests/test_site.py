@@ -76,6 +76,31 @@ class ProductionReadinessTests(unittest.TestCase):
             ["https://chipma.org/", "https://chipma.org/blog/"],
         )
 
+    def test_favicon_uses_approved_star_across_pages(self):
+        logo = ET.parse(ROOT / "assets/chipma-logo-master-color.svg").getroot()
+        favicon = ET.parse(ROOT / "assets/favicon.svg").getroot()
+        star = logo.find(".//*[@id='star']")
+        self.assertIsNotNone(star)
+        self.assertEqual(len(favicon), 1)
+        self.assertEqual(favicon[0].tag, "{http://www.w3.org/2000/svg}path")
+        self.assertEqual(favicon[0].get("d"), star.get("d"))
+        self.assertEqual(favicon[0].get("fill"), "#ED1C24")
+        self.assertEqual(favicon.get("viewBox"), "593 9 383 383")
+
+        icons = (
+            "/favicon.ico?v=2",
+            "/assets/favicon-16x16.png?v=2",
+            "/assets/favicon-32x32.png?v=2",
+            "/assets/favicon.svg?v=2",
+            "/assets/apple-touch-icon.png?v=2",
+        )
+        for icon in icons:
+            self.assertTrue((ROOT / icon.split("?", 1)[0].lstrip("/")).is_file(), icon)
+        for page in (ROOT / "index.html", *(ROOT / "blog").rglob("index.html")):
+            markup = page.read_text(encoding="utf-8")
+            for icon in icons:
+                self.assertIn(f'href="{icon}"', markup, str(page))
+
 
 if __name__ == "__main__":
     unittest.main()
