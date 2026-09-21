@@ -249,8 +249,11 @@ def document(title, description, canonical, content, header, footer, image=None,
     <meta name="twitter:image" content="{escape(share_image, quote=True)}">
     <link rel="canonical" href="{escape(canonical, quote=True)}">
     <title>{title_tag}</title>
-    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon">
+    <link rel="icon" href="/assets/favicon-16x16.png?v=2" type="image/png" sizes="16x16">
+    <link rel="icon" href="/assets/favicon-32x32.png?v=2" type="image/png" sizes="32x32">
+    <link rel="icon" href="/assets/favicon.svg?v=2" type="image/svg+xml" sizes="any">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png?v=2" sizes="180x180">
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/blog.css">
   </head>
