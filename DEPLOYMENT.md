@@ -15,6 +15,64 @@ The site was deployed and fully verified on August 26, 2026:
 
 Future pushes to `main` deploy automatically through GitHub Pages.
 
+## Current Release Procedure
+
+This is a plain static site: there is no package manager, build command,
+output directory, or application environment variable. The publishing source
+is the `main` branch at `/(root)`. The current review branch is not a production
+deployment source.
+
+1. Review the feature-branch diff and run `python3 -m unittest discover -s tests`,
+   `python3 -m py_compile scripts/update_blog.py`, and `git diff --check`.
+2. Commit the intended website, Blog generator, generated `blog/` pages, and
+   workflow files on the review branch. Open a pull request targeting `main`.
+3. Review the local preview and the pull-request diff. GitHub Pages is not
+   configured with a separate branch preview for this repository.
+4. When explicitly approved to release, merge the pull request into `main`.
+   That push triggers the existing GitHub Pages branch-source deployment.
+5. Check the Pages deployment in GitHub Actions and verify
+   `https://chipma.org/`, `https://chipma.org/blog/`, a local article URL,
+   and the `www` redirect. Confirm the new metadata, favicon, images, Luma
+   iframe, navigation, and footer on desktop and mobile.
+6. After the first scheduled Blog refresh, verify its workflow succeeded and
+   the article snapshot deployed. The scheduled workflow needs repository
+   permission to write its cached `blog/` files and permission to deploy Pages.
+
+The Blog workflow checks Medium every 15 minutes. It commits refreshed
+articles with the repository's `GITHUB_TOKEN` and deploys a Pages artifact in
+the same run. GitHub Pages does not automatically rebuild for commits made
+with `GITHUB_TOKEN`, so the explicit artifact deployment is necessary. If the
+workflow cannot push because of repository rules or cannot deploy because of
+Pages environment permissions, adjust those settings before relying on
+automatic article updates; the committed article pages remain available.
+
+No DNS or domain changes are required for this release. Public DNS already
+points the apex to GitHub Pages, and `www` redirects to the apex. Keep `CNAME`
+and the existing HTTPS settings unchanged. No production secrets are required;
+the workflow uses GitHub's built-in token.
+
+## Rollback
+
+If the release causes a regression, revert the release merge commit on `main`
+with `git revert`, review the revert, and push it to `main`. Do not force-push
+or reset the production branch. GitHub Pages will deploy the reverted static
+files. If the scheduled Blog workflow itself is the problem, disable that
+workflow in the Actions UI while investigating; leave DNS untouched. Verify
+the homepage and `www` redirect after the rollback deployment.
+
+## Known External Content
+
+The events iframe is served by Luma. Its remaining one-event whitespace is
+inside Luma's cross-origin layout, not padding or excess wrapper height in
+this site. A "Test Event" currently visible there is Luma event data, not
+placeholder content in this repository. Do not crop the iframe or edit Luma
+content as part of a site release.
+
+## Initial Setup Reference
+
+The sections below document the original one-time GitHub Pages and DNS setup.
+They are not steps to repeat for this release.
+
 ## Before Publishing
 
 1. Open `index.html` in a browser and review the copy, partner list, and outbound links.
