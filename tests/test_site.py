@@ -51,17 +51,26 @@ class ProductionReadinessTests(unittest.TestCase):
         self.assertTrue((ROOT / "assets/apple-touch-icon.png").is_file())
 
     def test_known_calls_to_action_and_footer_order(self):
-        self.assertIn('href="https://luma.com/chipma" target="_blank" rel="noopener noreferrer">Find an event', self.home)
-        self.assertIn('href="https://luma.com/chipma" target="_blank" rel="noopener noreferrer">See upcoming events', self.home)
-        self.assertIn('>Browse events on Luma ', self.home)
+        self.assertIn('href="https://www.meetup.com/chipma/events/" target="_blank" rel="noopener noreferrer">Find an event', self.home)
+        self.assertIn('href="https://www.meetup.com/chipma/events/" target="_blank" rel="noopener noreferrer">See upcoming events', self.home)
+        self.assertIn('>Browse events on Meetup ', self.home)
         hero = self.home.split('<section class="hero"', 1)[1].split('</section>', 1)[0]
         self.assertEqual(hero.count('class="button button-primary"'), 1)
         self.assertIn('Join our Slack Community', hero)
-        footer = self.home.split('<div class="footer-links">', 1)[1].split('</div>', 1)[0]
-        self.assertEqual(
-            [part.split('"', 1)[0] for part in footer.split('footer-icon-')[1:]],
-            ["luma", "slack", "linkedin", "instagram", "x", "medium"],
-        )
+        for path in (ROOT / "index.html", *(ROOT / "blog").rglob("index.html")):
+            page = path.read_text(encoding="utf-8")
+            self.assertIn('href="https://www.meetup.com/chipma/events/" target="_blank" rel="noopener noreferrer">Find an event', page)
+            markup = Markup()
+            markup.feed(page)
+            for link in markup.links:
+                if link.get("href", "").startswith("https://www.meetup.com/"):
+                    self.assertEqual(link.get("target"), "_blank")
+                    self.assertTrue({"noopener", "noreferrer"} <= set(link.get("rel", "").split()))
+            footer = page.split('<div class="footer-links">', 1)[1].split('</div>', 1)[0]
+            self.assertEqual(
+                [part.split('"', 1)[0] for part in footer.split('footer-icon-')[1:]],
+                ["slack", "linkedin", "instagram", "x", "medium"],
+            )
 
     def test_metadata_and_sitemap(self):
         self.assertEqual(self.markup.meta["og:title"], "Chicago Product Management Association | ChiPMA")

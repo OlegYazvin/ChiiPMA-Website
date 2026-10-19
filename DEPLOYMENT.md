@@ -32,8 +32,8 @@ deployment source.
    That push triggers the existing GitHub Pages branch-source deployment.
 5. Check the Pages deployment in GitHub Actions and verify
    `https://chipma.org/`, `https://chipma.org/blog/`, a local article URL,
-   and the `www` redirect. Confirm the new metadata, favicon, images, Luma
-   iframe, navigation, and footer on desktop and mobile.
+   and the `www` redirect. Confirm the new metadata, favicon, images, featured event card and expandable
+   details, navigation, and footer on desktop and mobile.
 6. After the first scheduled Blog refresh, verify its workflow succeeded and
    the article snapshot deployed. The scheduled workflow needs repository
    permission to write its cached `blog/` files and permission to deploy Pages.
@@ -60,13 +60,39 @@ files. If the scheduled Blog workflow itself is the problem, disable that
 workflow in the Actions UI while investigating; leave DNS untouched. Verify
 the homepage and `www` redirect after the rollback deployment.
 
-## Known External Content
+## Updating the Featured Event
 
-The events iframe is served by Luma. Its remaining one-event whitespace is
-inside Luma's cross-origin layout, not padding or excess wrapper height in
-this site. A "Test Event" currently visible there is Luma event data, not
-placeholder content in this repository. Do not crop the iframe or edit Luma
-content as part of a site release.
+The homepage event is maintained manually in `index.html`, between the
+`FEATURED EVENT` and `END FEATURED EVENT` comments. There is no calendar embed,
+JavaScript dependency, or separate event page. The native details panel starts
+collapsed and works with mouse, touch, and keyboard.
+
+For each event:
+
+1. Replace the title, visible date and hours, venue/partner, street address,
+   two- or three-sentence summary, and Meetup RSVP URL.
+2. Update both `<time datetime>` values with the full event date and correct
+   local UTC offset (Chicago uses `-06:00` in standard time and `-05:00` in
+   daylight time). Keep the visible time-zone label and agenda consistent.
+3. Add optimized artwork under `assets/` and update its `src`, descriptive
+   `alt`, and intrinsic `width`/`height`. Preserve the whole image: the card
+   uses responsive width and automatic height, without cropping.
+4. Replace the About, Agenda, and Host content inside the details panel,
+   including the host link. Keep external links' `noopener noreferrer` values
+   when opening a new tab.
+5. Preview desktop and mobile widths. Check title wrapping, full artwork,
+   location, RSVP destination, and keyboard activation/focus of the details
+   summary. Verify both expanded and collapsed layouts without horizontal
+   overflow, then run the checks in the release procedure above.
+
+Keep event-specific content inside this block; future events normally require
+no CSS changes. Replace or remove an expired feature manually when appropriate.
+The navigation, event-philosophy section, and closing call to action link to
+`https://www.meetup.com/chipma/events/`; the featured RSVP links to its specific
+event. The footer contains Slack, LinkedIn, Instagram, X, and Medium links.
+Blog pages reuse the homepage header and footer through `home_shell()` in
+`scripts/update_blog.py`; update the existing generated pages when changing
+these shared links so the site remains consistent before the next refresh.
 
 ## Initial Setup Reference
 
