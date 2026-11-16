@@ -118,7 +118,11 @@ MPD² student pairs, then maximizes current leader meetings. Unavoidable student
 pairs favor the configured anchor; subsequent goals cover all leaders, prioritize
 unemployed partners for the configured attendee, and connect IC PMs with more
 advanced students. A designated reserve is included only to make the count even.
-The roster and schedule freeze when the host starts the event.
+The roster and schedule freeze when the host starts the real event. A separate
+Start test action rehearses the public display with an explicit TEST RUN banner.
+Reset test clears released test rounds, returns the display to waiting, and
+unlocks the roster while preserving the generated schedule. Real event rounds
+cannot be reset through these controls.
 
 Only the results viewer lives at `https://www.chipma.org/speed-networking-event`.
 A separate public service supplies released round numbers, pair numbers, and

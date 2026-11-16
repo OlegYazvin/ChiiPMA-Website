@@ -4,9 +4,10 @@ let state=null,selected=0,lastVersion=-1;
 if(new URLSearchParams(location.search).has('display'))document.body.classList.add('presentation');
 function render(){
  if(!state)return;const live=state.currentRound||0,hasRounds=live>0;
+ $('#test-banner').hidden=!state.isTest;document.body.classList.toggle('is-test',!!state.isTest);
  $('#event-status').textContent={waiting:'GETTING READY',live:'CONVERSATIONS IN PROGRESS',break:'TAKE A BREATHER',finished:'THAT’S A WRAP'}[state.status]||'GETTING READY';
  $('#round-label').textContent=state.status==='waiting'?'Your first conversation is on its way.':state.status==='finished'?'Keep the conversations going.':state.status==='break'?`On a break after round ${live}`:`Round ${live} of 12`;
- $('#round-counter').textContent=hasRounds?`${live} of 12 rounds released`:'12 rounds · 1:1 conversations';
+ $('#round-counter').textContent=hasRounds?`${state.isTest?'TEST · ':''}${live} of 12 rounds released`:'12 rounds · 1:1 conversations';
  $('#waiting').hidden=hasRounds;$('#search-wrap').hidden=!hasRounds;$('#round-tabs').hidden=!hasRounds;
  $('#round-tabs').innerHTML=(state.rounds||[]).map(r=>`<button data-round="${r.number}" class="${selected===r.number?'selected':''}" aria-pressed="${selected===r.number}">Round ${r.number}</button>`).join('');
  $('#section-eyebrow').textContent=hasRounds?selected===live?'YOUR NEXT INTRODUCTION':'PREVIOUSLY RELEASED':'READY WHEN YOU ARE';
