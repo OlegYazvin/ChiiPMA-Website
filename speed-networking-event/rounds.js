@@ -5,16 +5,16 @@ if(new URLSearchParams(location.search).has('display'))document.body.classList.a
 function render(){
  if(!state)return;const live=state.currentRound||0,hasRounds=live>0;
  $('#test-banner').hidden=!state.isTest;document.body.classList.toggle('is-test',!!state.isTest);
- $('#event-status').textContent={waiting:'GETTING READY',live:'CONVERSATIONS IN PROGRESS',break:'TAKE A BREATHER',finished:'THAT’S A WRAP'}[state.status]||'GETTING READY';
- $('#round-label').textContent=state.status==='waiting'?'Your first conversation is on its way.':state.status==='finished'?'Keep the conversations going.':state.status==='break'?`On a break after round ${live}`:`Round ${live} of 12`;
- $('#round-counter').textContent=hasRounds?`${state.isTest?'TEST · ':''}${live} of 12 rounds released`:'12 rounds · 1:1 conversations';
- $('#waiting').hidden=hasRounds;$('#search-wrap').hidden=!hasRounds;$('#round-tabs').hidden=!hasRounds;
+ $('#event-status').textContent={waiting:'WAITING',live:'ROUND IN PROGRESS',break:'BREAK',finished:'EVENT COMPLETE'}[state.status]||'WAITING';
+ $('#round-label').textContent=state.status==='waiting'?'Waiting for round 1':state.status==='finished'?'All 12 rounds complete':state.status==='break'?`On a break after round ${live}`:`Round ${live} of 12`;
+ $('#round-counter').textContent=hasRounds?`${state.isTest?'TEST · ':''}${live} of 12 rounds released`:'12 rounds · Stations 1–20';
+ $('#waiting').hidden=hasRounds;$('#search-wrap').hidden=!hasRounds;$('#round-tabs').hidden=!hasRounds;$('#history').hidden=!hasRounds;$('#table-wrap').hidden=!hasRounds;
  $('#round-tabs').innerHTML=(state.rounds||[]).map(r=>`<button data-round="${r.number}" class="${selected===r.number?'selected':''}" aria-pressed="${selected===r.number}">Round ${r.number}</button>`).join('');
- $('#section-eyebrow').textContent=hasRounds?selected===live?'YOUR NEXT INTRODUCTION':'PREVIOUSLY RELEASED':'READY WHEN YOU ARE';
- $('#section-title').textContent=hasRounds?`Round ${String(selected).padStart(2,'0')} conversations`:'Good people. Great conversations.';
+ $('#section-eyebrow').textContent=hasRounds?selected===live?'CURRENT ROUND':'PREVIOUS ROUND':'CURRENT ROUND';
+ $('#section-title').textContent=hasRounds?`Round ${selected}: Station assignments`:'Stations and partners';
  const query=$('#name-search').value.trim().toLocaleLowerCase(),r=state.rounds?.find(r=>r.number===selected);
  const pairs=(r?.matches||[]).filter(p=>!query||p.names.some(n=>n.toLocaleLowerCase().includes(query)));
- $('#pair-grid').innerHTML=pairs.map(p=>`<article class="pair${query?' highlight':''}"><div class="pair-top"><span>STATION ${String(p.station??p.pairNumber).padStart(2,'0')}</span><span>↗</span></div><div class="names"><strong>${esc(p.names[0])}</strong><i aria-label="with">↔</i><strong>${esc(p.names[1])}</strong></div></article>`).join('');
+ $('#pair-grid').innerHTML=pairs.map(p=>`<tr class="${query?'highlight':''}"><th scope="row">${String(p.station??p.pairNumber).padStart(2,'0')}</th><td>${esc(p.names[0])}</td><td>${esc(p.names[1])}</td></tr>`).join('');
  $('#no-results').hidden=!hasRounds||pairs.length>0;
 }
 async function poll(){
@@ -22,7 +22,7 @@ async function poll(){
   const r=await fetch(FEED,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(10000)});if(!r.ok)throw Error('Display unavailable');const next=await r.json();
   if(!Array.isArray(next.rounds)||!['waiting','live','break','finished'].includes(next.status))throw Error('Invalid display');
   if(next.version!==lastVersion){if(!state||next.currentRound!==state.currentRound)selected=next.currentRound;state=next;lastVersion=next.version;render();}
-  $('#connection').textContent='● Connected to the host · Updates automatically';$('#connection').classList.remove('error');
+  $('#connection').textContent='Updates automatically.';$('#connection').classList.remove('error');
  }catch{ $('#connection').textContent=state?'Reconnecting… Showing the last confirmed round.':'Connecting to the host… Retrying automatically.';$('#connection').classList.add('error');}
  setTimeout(poll,3000);
 }

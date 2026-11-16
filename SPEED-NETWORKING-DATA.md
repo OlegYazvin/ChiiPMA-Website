@@ -113,11 +113,14 @@ job categories, employment status, and whether leadership is current. Current
 leadership is separate from a student's highest historical professional level.
 LinkedIn research, profile URLs, and professional histories stay local.
 
-The tool creates twelve complete rounds, prohibits repeated pairs, minimizes
-MPD² student pairs, then maximizes current leader meetings. Unavoidable student
-pairs favor the configured anchor; subsequent goals cover all leaders, prioritize
+The tool creates twelve complete rounds and prohibits repeated pairs. The
+configured alternating student anchor meets an MPD² student in odd rounds and a
+non-student in even rounds; other student–student matches are excluded. With a
+balanced roster this produces six student pairs and six non-student pairs.
+Subsequent goals maximize current leader meetings, cover all leaders, prioritize
 unemployed partners for the configured attendee, and connect IC PMs with more
-advanced students. A designated reserve is included only to make the count even.
+advanced students. The per-attendee `alternateStudentPartners` flag preserves
+this rule on import, export, and regeneration. A designated reserve is included only to make the count even.
 The roster and schedule freeze when the host starts the real event. A separate
 Start test action rehearses the public display with an explicit TEST RUN banner.
 Reset test clears released test rounds, returns the display to waiting, and
