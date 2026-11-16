@@ -115,8 +115,13 @@ LinkedIn research, profile URLs, and professional histories stay local.
 
 The tool creates twelve complete rounds and prohibits repeated pairs. The
 configured alternating student anchor meets an MPD² student in odd rounds and a
-non-student in even rounds; other student–student matches are excluded. With a
-balanced roster this produces six student pairs and six non-student pairs.
+non-student in even rounds. Other student–student matches are normally excluded.
+The optional `allowAdditionalStudentPair` setting permits exactly one additional
+student pair each round when the student cohort outnumbers other attendees by
+two. This retains six non-student pairs across the event. It scales back to zero
+additional pairs when the cohorts balance; larger imbalances require attendance
+changes. With a balanced roster there are six student pairs and six non-student
+pairs.
 Subsequent goals maximize current leader meetings, cover all leaders, prioritize
 unemployed partners for the configured attendee, and connect IC PMs with more
 advanced students. The per-attendee `alternateStudentPartners` flag preserves
