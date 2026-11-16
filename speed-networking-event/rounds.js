@@ -14,7 +14,7 @@ function render(){
  $('#section-title').textContent=hasRounds?`Round ${String(selected).padStart(2,'0')} conversations`:'Good people. Great conversations.';
  const query=$('#name-search').value.trim().toLocaleLowerCase(),r=state.rounds?.find(r=>r.number===selected);
  const pairs=(r?.matches||[]).filter(p=>!query||p.names.some(n=>n.toLocaleLowerCase().includes(query)));
- $('#pair-grid').innerHTML=pairs.map(p=>`<article class="pair${query?' highlight':''}"><div class="pair-top"><span>CONVERSATION ${String(p.pairNumber).padStart(2,'0')}</span><span>↗</span></div><div class="names"><strong>${esc(p.names[0])}</strong><i aria-label="with">↔</i><strong>${esc(p.names[1])}</strong></div></article>`).join('');
+ $('#pair-grid').innerHTML=pairs.map(p=>`<article class="pair${query?' highlight':''}"><div class="pair-top"><span>STATION ${String(p.station??p.pairNumber).padStart(2,'0')}</span><span>↗</span></div><div class="names"><strong>${esc(p.names[0])}</strong><i aria-label="with">↔</i><strong>${esc(p.names[1])}</strong></div></article>`).join('');
  $('#no-results').hidden=!hasRounds||pairs.length>0;
 }
 async function poll(){

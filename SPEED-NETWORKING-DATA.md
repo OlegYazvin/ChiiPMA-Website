@@ -125,7 +125,7 @@ unlocks the roster while preserving the generated schedule. Real event rounds
 cannot be reset through these controls.
 
 Only the results viewer lives at `https://www.chipma.org/speed-networking-event`.
-A separate public service supplies released round numbers, pair numbers, and
+A separate public service supplies released round numbers, station numbers, pair numbers, and
 names. It receives no professional classifications or unreleased rounds. Host
 writes require a server-held secret and version checks; public reads contain no
 admin credential. Keep this separation when updating either Site.
@@ -137,3 +137,18 @@ use synthetic rosters and do not require the local attendee data.
 
 Publishing references: [Jekyll directory structure](https://jekyllrb.com/docs/structure/)
 and [Pages artifact action v4](https://github.com/actions/upload-pages-artifact/blob/v4/action.yml).
+
+## Station assignments
+
+There are 20 physical stations, numbered 1–20, with one conversation per active
+station in each round. Attendance is capped at 40 active people. Station
+assignment preserves the generated pairs and all matching priorities.
+
+When the conversation graph has two equal groups, one group keeps fixed
+stations throughout all twelve rounds; the allocator favors keeping MPD²
+students seated. Other schedules use maximum-weight assignments between rounds.
+With unique partners, at most one person in each pair can stay at the prior
+station, so keeping half of the attendees seated each transition is optimal.
+The private metrics report stays, movements, and attendees who keep one station
+throughout. CSV downloads and the public display include explicit station
+numbers. Unused stations stay idle when fewer than 40 attendees participate.
