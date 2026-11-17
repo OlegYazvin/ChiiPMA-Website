@@ -113,19 +113,20 @@ job categories, employment status, and whether leadership is current. Current
 leadership is separate from a student's highest historical professional level.
 LinkedIn research, profile URLs, and professional histories stay local.
 
-The tool creates twelve complete rounds and prohibits repeated pairs. The
-configured alternating student anchor meets an MPD² student in odd rounds and a
-non-student in even rounds. Other student–student matches are normally excluded.
-The optional `allowAdditionalStudentPair` setting permits exactly one additional
-student pair each round when the student cohort outnumbers other attendees by
-two. This retains six non-student pairs across the event. It scales back to zero
-additional pairs when the cohorts balance; larger imbalances require attendance
-changes. With a balanced roster there are six student pairs and six non-student
-pairs.
-Subsequent goals maximize current leader meetings, cover all leaders, prioritize
+The tool creates twelve complete rounds and prohibits repeated pairs. Student
+conversations are restricted to the two configured part-time year groups: one
+person from Group 1 and one from Group 2. Same-group and unlisted student pairs
+are prohibited, as are pairs sharing a team. The generator first maximizes
+current people-leader meetings, then minimizes student conversations while
+preserving that maximum. Lower priorities cover all leaders, prioritize
 unemployed partners for the configured attendee, and connect IC PMs with more
-advanced students. The per-attendee `alternateStudentPartners` flag preserves
-this rule on import, export, and regeneration. A designated reserve is included only to make the count even.
+advanced students.
+
+The per-attendee `studentPairGroup`, `teamId`, and `studentOnlyPartners` settings
+persist through import, export, and regeneration. Group eligibility replaces
+the previous alternating-anchor exception. A designated reserve is included
+only to make the active count even. Additional candidates can stay unchecked
+until attendance is confirmed; they do not participate in generated rounds.
 The roster and schedule freeze when the host starts the real event. A separate
 Start test action rehearses the public display with an explicit TEST RUN banner.
 Reset test clears released test rounds, returns the display to waiting, and
