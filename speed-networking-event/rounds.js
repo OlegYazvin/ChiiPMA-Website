@@ -1,9 +1,27 @@
 const FEED='https://chipma-networking-results.mikesmythe.chatgpt.site/api/state';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let state=null,selected=0,lastVersion=-1;
+const ROUND_DURATION=5*60*1000;
+let timerRound=null,timerDeadline=null,timerRemaining=ROUND_DURATION;
 if(new URLSearchParams(location.search).has('display'))document.body.classList.add('presentation');
+function syncTimer(next){
+ const key=next.currentRound>0?`${next.eventId}:${!!next.isTest}:${next.currentRound}`:null,now=Date.now();
+ if(key!==timerRound){timerRound=key;timerRemaining=ROUND_DURATION;timerDeadline=null;}
+ if(timerDeadline!==null)timerRemaining=Math.max(0,timerDeadline-now);
+ timerDeadline=key&&next.status==='live'?now+timerRemaining:null;
+}
+function renderTimer(){
+ const visible=state?.currentRound>0&&['live','break'].includes(state.status);
+ $('#countdown').hidden=!visible;
+ if(!visible)return;
+ const remaining=Math.ceil((timerDeadline===null?timerRemaining:Math.max(0,timerDeadline-Date.now()))/1000);
+ $('#timer-value').textContent=`${String(Math.floor(remaining/60)).padStart(2,'0')}:${String(remaining%60).padStart(2,'0')}`;
+ $('#timer-label').textContent=state.status==='break'?`Round ${state.currentRound} paused`:remaining===0?'Time is up':`Round ${state.currentRound} time left`;
+ $('#countdown').classList.toggle('complete',remaining===0);
+}
 function render(){
  if(!state)return;const live=state.currentRound||0,hasRounds=live>0;
+ renderTimer();
  $('#test-banner').hidden=!state.isTest;document.body.classList.toggle('is-test',!!state.isTest);
  $('#event-status').textContent={waiting:'WAITING',live:'ROUND IN PROGRESS',break:'BREAK',finished:'EVENT COMPLETE'}[state.status]||'WAITING';
  $('#round-label').textContent=state.status==='waiting'?'Waiting for round 1':state.status==='finished'?'All 12 rounds complete':state.status==='break'?`On a break after round ${live}`:`Round ${live} of 12`;
@@ -22,7 +40,7 @@ async function poll(){
  try{
   const r=await fetch(FEED,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(10000)});if(!r.ok)throw Error('Display unavailable');const next=await r.json();
   if(!Array.isArray(next.rounds)||!['waiting','live','break','finished'].includes(next.status))throw Error('Invalid display');
-  if(next.version!==lastVersion){if(!state||next.currentRound!==state.currentRound)selected=next.currentRound;state=next;lastVersion=next.version;render();}
+  if(next.version!==lastVersion){if(!state||next.currentRound!==state.currentRound)selected=next.currentRound;syncTimer(next);state=next;lastVersion=next.version;render();}
   $('#connection').textContent='Updates automatically.';$('#connection').classList.remove('error');
  }catch{ $('#connection').textContent=state?'Reconnecting… Showing the last confirmed round.':'Connecting to the host… Retrying automatically.';$('#connection').classList.add('error');}
  setTimeout(poll,3000);
@@ -30,4 +48,5 @@ async function poll(){
 $('#name-search').oninput=render;
 $('#round-tabs').onclick=e=>{if(e.target.dataset.round){selected=Number(e.target.dataset.round);render();}};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state)render();});
+setInterval(renderTimer,1000);
 poll();
