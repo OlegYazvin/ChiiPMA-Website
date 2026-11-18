@@ -135,7 +135,8 @@ cannot be reset through these controls.
 
 Only the results viewer lives at `https://www.chipma.org/speed-networking-event`.
 A separate public service supplies released round numbers, station numbers, pair numbers, and
-names. It receives no professional classifications or unreleased rounds. Host
+names, plus an optional lead question for each released round. It receives no
+question bank, draft assignments, professional classifications, or unreleased rounds. Host
 writes require a server-held secret and version checks; public reads contain no
 admin credential. Keep this separation when updating either Site.
 
@@ -143,6 +144,13 @@ Local scheduling input, leadership evidence, generated JSON, and downloadable
 CSV remain inside `.private/speed-networking-event/`. The organizer permits
 attendance edits and regeneration before the event starts. Its automated tests
 use synthetic rosters and do not require the local attendee data.
+
+The organizer's Questions tab keeps candidate lead questions and one optional
+assignment for each round in its private database. Questions can be added and
+edited on event day, including for upcoming rounds after the event starts.
+Released assignments and question text are locked; a test reset unlocks them.
+Question changes preserve attendee selections and generated matches. The public
+viewer shows an assigned question only after the host releases its round.
 
 Publishing references: [Jekyll directory structure](https://jekyllrb.com/docs/structure/)
 and [Pages artifact action v4](https://github.com/actions/upload-pages-artifact/blob/v4/action.yml).
