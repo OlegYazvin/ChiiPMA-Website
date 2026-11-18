@@ -31,12 +31,20 @@ async function display(initial){
  };
 }
 
-test('loading or refreshing an active round starts a five-minute countdown',async()=>{
+test('loading or refreshing leaves five minutes ready until Start timer is clicked',async()=>{
  const page=await display(fixture());
  assert.equal(page.get('#countdown').hidden,false);
  assert.equal(page.get('#timer-value').textContent,'05:00');
+ assert.equal(page.get('#start-timer').disabled,false);
+ assert.equal(page.get('#start-timer').textContent,'Start timer');
+ page.advance(60000);
+ await page.poll();
+ assert.equal(page.get('#timer-value').textContent,'05:00');
+ page.get('#start-timer').onclick();
  page.advance(1000);
  assert.equal(page.get('#timer-value').textContent,'04:59');
+ assert.equal(page.get('#start-timer').disabled,true);
+ page.get('#start-timer').onclick();
  page.advance(119000);
  await page.poll();
  await page.poll(fixture({version:2}));
@@ -44,14 +52,21 @@ test('loading or refreshing an active round starts a five-minute countdown',asyn
  page.get('#name-search').oninput();
  assert.equal(page.get('#timer-value').textContent,'03:00');
  const refreshed=await display(fixture({version:2}));
+ refreshed.advance(60000);
  assert.equal(refreshed.get('#timer-value').textContent,'05:00');
+ assert.equal(refreshed.get('#start-timer').disabled,false);
 });
 
-test('a newly released round restarts the countdown; viewing history does not',async()=>{
+test('a newly released round waits for Start timer; viewing history preserves the countdown',async()=>{
  const first=fixture(),page=await display(first);
+ page.get('#start-timer').onclick();
  page.advance(60000);
  await page.poll(fixture({version:2,currentRound:2,rounds:[...first.rounds,{number:2,leadQuestion:'What surprised you?',matches:first.rounds[0].matches}]}));
  assert.equal(page.get('#timer-value').textContent,'05:00');
+ page.advance(60000);
+ assert.equal(page.get('#timer-value').textContent,'05:00');
+ assert.equal(page.get('#start-timer').disabled,false);
+ page.get('#start-timer').onclick();
  page.advance(1000);
  page.get('#round-tabs').onclick({target:{dataset:{round:'1'}}});
  assert.equal(page.get('#timer-value').textContent,'04:59');
@@ -61,6 +76,7 @@ test('a newly released round restarts the countdown; viewing history does not',a
 
 test('countdown uses elapsed time, survives reconnects, and stops at zero',async()=>{
  const page=await display(fixture());
+ page.get('#start-timer').onclick();
  page.offline(true);
  page.advance(290000);
  await page.poll();
@@ -71,34 +87,50 @@ test('countdown uses elapsed time, survives reconnects, and stops at zero',async
  assert.equal(page.get('#timer-value').textContent,'00:00');
  assert.equal(page.get('#timer-label').textContent,'Time is up');
  assert.equal(page.get('#countdown').classList.values.has('complete'),true);
+ assert.equal(page.get('#start-timer').disabled,true);
+ page.get('#start-timer').onclick();
  page.offline(false);
  await page.poll();
  assert.equal(page.get('#timer-value').textContent,'00:00');
  assert.equal(page.get('#round-label').textContent,'Round 1 of 12');
 });
 
-test('host breaks pause the remaining time and resume continues it',async()=>{
+test('host breaks pause the timer and require a manual resume',async()=>{
  const page=await display(fixture());
+ page.get('#start-timer').onclick();
  page.advance(60000);
  await page.poll(fixture({version:2,status:'break'}));
  page.advance(180000);
  assert.equal(page.get('#timer-value').textContent,'04:00');
  assert.equal(page.get('#timer-label').textContent,'Round 1 paused');
+ assert.equal(page.get('#start-timer').disabled,true);
+ page.get('#start-timer').onclick();
  await page.poll(fixture({version:3}));
+ page.advance(60000);
+ assert.equal(page.get('#timer-value').textContent,'04:00');
+ assert.equal(page.get('#start-timer').textContent,'Resume timer');
+ assert.equal(page.get('#start-timer').disabled,false);
+ page.get('#start-timer').onclick();
  page.advance(1000);
  assert.equal(page.get('#timer-value').textContent,'03:59');
 });
 
-test('waiting and finished states hide the timer; a test reset starts fresh',async()=>{
+test('waiting and finished states hide the timer; test resets leave the new timer idle',async()=>{
  const waiting=fixture({status:'waiting',isTest:false,currentRound:0,rounds:[]}),page=await display(waiting);
  assert.equal(page.get('#countdown').hidden,true);
+ assert.equal(page.get('#round-layout').classList.values.has('has-timer'),false);
+ page.get('#start-timer').onclick();
  await page.poll(fixture({version:2}));
  assert.equal(page.get('#timer-value').textContent,'05:00');
+ assert.equal(page.get('#round-layout').classList.values.has('has-timer'),true);
+ page.get('#start-timer').onclick();
  page.advance(60000);
  await page.poll({...waiting,version:3});
  assert.equal(page.get('#countdown').hidden,true);
  await page.poll(fixture({version:4}));
+ page.advance(60000);
  assert.equal(page.get('#timer-value').textContent,'05:00');
+ assert.equal(page.get('#start-timer').disabled,false);
  await page.poll(fixture({version:5,status:'finished',currentRound:12}));
  assert.equal(page.get('#countdown').hidden,true);
 });

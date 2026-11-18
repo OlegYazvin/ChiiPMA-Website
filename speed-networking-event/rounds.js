@@ -5,18 +5,20 @@ const ROUND_DURATION=5*60*1000;
 let timerRound=null,timerDeadline=null,timerRemaining=ROUND_DURATION;
 if(new URLSearchParams(location.search).has('display'))document.body.classList.add('presentation');
 function syncTimer(next){
- const key=next.currentRound>0?`${next.eventId}:${!!next.isTest}:${next.currentRound}`:null,now=Date.now();
+ const key=next.currentRound>0?`${next.eventId}:${!!next.isTest}:${next.currentRound}`:null;
  if(key!==timerRound){timerRound=key;timerRemaining=ROUND_DURATION;timerDeadline=null;}
- if(timerDeadline!==null)timerRemaining=Math.max(0,timerDeadline-now);
- timerDeadline=key&&next.status==='live'?now+timerRemaining:null;
+ if(next.status!=='live'&&timerDeadline!==null){timerRemaining=Math.max(0,timerDeadline-Date.now());timerDeadline=null;}
 }
 function renderTimer(){
  const visible=state?.currentRound>0&&['live','break'].includes(state.status);
  $('#countdown').hidden=!visible;
+ $('#round-layout').classList.toggle('has-timer',visible);
  if(!visible)return;
  const remaining=Math.ceil((timerDeadline===null?timerRemaining:Math.max(0,timerDeadline-Date.now()))/1000);
  $('#timer-value').textContent=`${String(Math.floor(remaining/60)).padStart(2,'0')}:${String(remaining%60).padStart(2,'0')}`;
- $('#timer-label').textContent=state.status==='break'?`Round ${state.currentRound} paused`:remaining===0?'Time is up':`Round ${state.currentRound} time left`;
+ $('#timer-label').textContent=state.status==='break'?`Round ${state.currentRound} paused`:remaining===0?'Time is up':timerDeadline!==null?`Round ${state.currentRound} time left`:`Round ${state.currentRound} · ${timerRemaining===ROUND_DURATION?'ready':'paused'}`;
+ $('#start-timer').disabled=state.status!=='live'||timerDeadline!==null||remaining===0;
+ $('#start-timer').textContent=state.status==='break'?'On break':remaining===0?'Time is up':timerDeadline!==null?'Timer running':timerRemaining===ROUND_DURATION?'Start timer':'Resume timer';
  $('#countdown').classList.toggle('complete',remaining===0);
 }
 function render(){
@@ -46,6 +48,7 @@ async function poll(){
  setTimeout(poll,3000);
 }
 $('#name-search').oninput=render;
+$('#start-timer').onclick=()=>{if(state?.status!=='live'||!timerRound||timerDeadline!==null||timerRemaining<=0)return;timerDeadline=Date.now()+timerRemaining;renderTimer();};
 $('#round-tabs').onclick=e=>{if(e.target.dataset.round){selected=Number(e.target.dataset.round);render();}};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state)render();});
 setInterval(renderTimer,1000);

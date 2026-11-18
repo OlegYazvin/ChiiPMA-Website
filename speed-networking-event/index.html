@@ -7,8 +7,8 @@
   <meta name="description" content="Current ChiPMA networking round, station numbers, and partners.">
   <title>Networking rounds | ChiPMA</title>
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="rounds.css?v=6">
-  <script type="module" src="rounds.js?v=6"></script>
+  <link rel="stylesheet" href="rounds.css?v=7">
+  <script type="module" src="rounds.js?v=7"></script>
 </head>
 <body>
   <a class="skip" href="#matches">Skip to assignments</a>
@@ -21,23 +21,27 @@
     <div id="test-banner" class="test-banner" role="status" hidden>TEST RUN — The event has not started.</div>
     <section class="round-bar" aria-label="Current round">
       <div class="round-heading"><span id="event-status">WAITING</span><strong id="round-label">Waiting for round 1</strong></div>
-      <div class="round-meta">
-        <div id="countdown" hidden><span id="timer-label">Round time left</span><strong id="timer-value" role="timer" aria-live="off" aria-labelledby="timer-label">05:00</strong></div>
-        <span id="round-counter">12 rounds · Stations 1–20</span>
-      </div>
+      <span id="round-counter">12 rounds · Stations 1–20</span>
     </section>
     <div id="connection" role="status" aria-live="polite">Connecting…</div>
     <section id="lead-question" class="lead-question" aria-labelledby="lead-question-label" hidden>
       <h2 id="lead-question-label">Conversation starter</h2>
       <p id="lead-question-text"></p>
     </section>
-    <section id="matches">
-      <div class="section-title"><div><p id="section-eyebrow">CURRENT ROUND</p><h2 id="section-title">Stations and partners</h2></div><label class="search" id="search-wrap" hidden><span>Find your name</span><input id="name-search" type="search" placeholder="First or last name" autocomplete="off"></label></div>
-      <details id="history" hidden><summary>Previously released rounds</summary><nav id="round-tabs" aria-label="Released rounds"></nav></details>
-      <p id="waiting" class="waiting">Waiting for the host to release round 1. This page updates automatically.</p>
-      <div class="table-wrap" id="table-wrap" hidden><table><caption class="sr-only">Station assignments for the selected round</caption><thead><tr><th scope="col">Station</th><th scope="col">Attendee</th><th scope="col">Partner</th></tr></thead><tbody id="pair-grid"></tbody></table></div>
-      <p id="no-results" hidden>No matching name in this round. Try a first or last name.</p>
-    </section>
+    <div id="round-layout" class="round-layout">
+      <aside id="countdown" aria-label="Round timer" hidden>
+        <span id="timer-label">Ready to start</span>
+        <strong id="timer-value" role="timer" aria-live="off" aria-labelledby="timer-label">05:00</strong>
+        <button id="start-timer" type="button">Start timer</button>
+      </aside>
+      <section id="matches">
+        <div class="section-title"><div><p id="section-eyebrow">CURRENT ROUND</p><h2 id="section-title">Stations and partners</h2></div><label class="search" id="search-wrap" hidden><span>Find your name</span><input id="name-search" type="search" placeholder="First or last name" autocomplete="off"></label></div>
+        <details id="history" hidden><summary>Previously released rounds</summary><nav id="round-tabs" aria-label="Released rounds"></nav></details>
+        <p id="waiting" class="waiting">Waiting for the host to release round 1. This page updates automatically.</p>
+        <div class="table-wrap" id="table-wrap" hidden><table><caption class="sr-only">Station assignments for the selected round</caption><thead><tr><th scope="col">Station</th><th scope="col">Attendee</th><th scope="col">Partner</th></tr></thead><tbody id="pair-grid"></tbody></table></div>
+        <p id="no-results" hidden>No matching name in this round. Try a first or last name.</p>
+      </section>
+    </div>
   </main>
   <footer><a href="/">ChiPMA home</a></footer>
 </body>
