@@ -64,6 +64,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 body.presentation header { padding-top: 12px; padding-bottom: 10px; }
 body.presentation .instructions { padding: 12px 0; }
 body.presentation td, body.presentation tbody th { padding-top: 6px; padding-bottom: 6px; font-size: 17px; }
+@media(min-width: 901px) {
+  header, main, footer { max-width: 1800px; }
+  .round-layout.has-timer { grid-template-columns: clamp(300px, 28vw, 460px) minmax(0, 1fr); gap: 32px; }
+  #countdown { padding: 32px 24px; gap: 24px; }
+  #timer-label { font-size: 18px; }
+  #timer-value { font-size: clamp(88px, 8vw, 144px); font-weight: 800; }
+  #start-timer { padding: 16px 20px; font-size: 20px; }
+  .section-title { flex-wrap: wrap; }
+}
 @media(max-width: 900px) {
   .round-layout.has-timer { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   #countdown { position: static; grid-template-columns: 1fr auto; align-items: center; gap: 8px 20px; padding: 16px; text-align: left; }
