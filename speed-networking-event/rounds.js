@@ -3,11 +3,39 @@ const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>
 let state=null,selected=0,lastVersion=-1;
 const ROUND_DURATION=5*60*1000;
 let timerRound=null,timerDeadline=null,timerRemaining=ROUND_DURATION;
+const TIMER_CHIME='/speed-networking-event/timer-chime.mp3?v=1';
+let alarmContext=null,alarmLoading=null,alarmSource=null,alarmPlayed=false;
 if(new URLSearchParams(location.search).has('display'))document.body.classList.add('presentation');
+function audioUnavailable(){const status=$('#timer-audio-status');status.textContent='Timer sound is unavailable.';status.hidden=false;}
+async function prepareAlarm(){
+ const AudioContext=globalThis.AudioContext||globalThis.webkitAudioContext;
+ if(!AudioContext)throw Error('Audio is unavailable.');
+ alarmContext??=new AudioContext();
+ // Resume inside the Start timer click so later playback has audio permission.
+ const resuming=alarmContext.resume();
+ alarmLoading??=fetch(TIMER_CHIME,{cache:'force-cache'}).then(async response=>{
+  if(!response.ok)throw Error('Timer sound could not load.');
+  return alarmContext.decodeAudioData(await response.arrayBuffer());
+ }).catch(error=>{alarmLoading=null;throw error;});
+ const [,buffer]=await Promise.all([resuming,alarmLoading]);
+ $('#timer-audio-status').hidden=true;
+ return buffer;
+}
+function stopAlarm(){if(alarmSource){alarmSource.stop();alarmSource=null;}}
+function playAlarm(){
+ if(alarmPlayed)return;
+ alarmPlayed=true;const key=timerRound;
+ prepareAlarm().then(buffer=>{
+  if(timerRound!==key||timerDeadline===null||state?.status!=='live'||Date.now()<timerDeadline)return;
+  const source=alarmContext.createBufferSource();alarmSource=source;source.buffer=buffer;
+  source.connect(alarmContext.destination);source.onended=()=>{if(alarmSource===source)alarmSource=null;};source.start();
+ }).catch(audioUnavailable);
+}
 function syncTimer(next){
  const key=next.currentRound>0?`${next.eventId}:${!!next.isTest}:${next.currentRound}`:null;
- if(key!==timerRound){timerRound=key;timerRemaining=ROUND_DURATION;timerDeadline=null;}
+ if(key!==timerRound){stopAlarm();alarmPlayed=false;timerRound=key;timerRemaining=ROUND_DURATION;timerDeadline=null;$('#timer-audio-status').hidden=true;}
  if(next.status!=='live'&&timerDeadline!==null){timerRemaining=Math.max(0,timerDeadline-Date.now());timerDeadline=null;}
+ if(next.status!=='live')stopAlarm();
 }
 function renderTimer(){
  const visible=state?.currentRound>0&&['live','break'].includes(state.status);
@@ -20,6 +48,7 @@ function renderTimer(){
  $('#start-timer').disabled=state.status!=='live'||timerDeadline!==null||remaining===0;
  $('#start-timer').textContent=state.status==='break'?'On break':remaining===0?'Time is up':timerDeadline!==null?'Timer running':timerRemaining===ROUND_DURATION?'Start timer':'Resume timer';
  $('#countdown').classList.toggle('complete',remaining===0);
+ if(state.status==='live'&&timerDeadline!==null&&remaining===0)playAlarm();
 }
 function render(){
  if(!state)return;const live=state.currentRound||0,hasRounds=live>0;
@@ -48,7 +77,7 @@ async function poll(){
  setTimeout(poll,3000);
 }
 $('#name-search').oninput=render;
-$('#start-timer').onclick=()=>{if(state?.status!=='live'||!timerRound||timerDeadline!==null||timerRemaining<=0)return;timerDeadline=Date.now()+timerRemaining;renderTimer();};
+$('#start-timer').onclick=()=>{if(state?.status!=='live'||!timerRound||timerDeadline!==null||timerRemaining<=0)return;prepareAlarm().catch(audioUnavailable);timerDeadline=Date.now()+timerRemaining;renderTimer();};
 $('#round-tabs').onclick=e=>{if(e.target.dataset.round){selected=Number(e.target.dataset.round);render();}};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state)render();});
 setInterval(renderTimer,1000);

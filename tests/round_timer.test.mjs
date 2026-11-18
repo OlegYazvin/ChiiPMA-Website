@@ -9,21 +9,29 @@ const ids=[...html.matchAll(/id="([^"]+)"/g)].map(match=>`#${match[1]}`);
 const classes=()=>({values:new Set(),add(value){this.values.add(value);},remove(value){this.values.delete(value);},toggle(value,on){on?this.add(value):this.remove(value);}});
 const fixture=(overrides={})=>({eventId:'synthetic-event',version:1,status:'live',isTest:true,currentRound:1,rounds:[{number:1,leadQuestion:'What did you learn?',matches:[{station:1,names:['Alex Example','Taylor Example']}]}],...overrides});
 
-async function display(initial){
+async function display(initial,{soundAvailable=true}={}){
  let now=0,feed=initial,offline=false;
  const elements=new Map(ids.map(id=>[id,{hidden:false,value:'',textContent:'',innerHTML:'',classList:classes()}]));
- const listeners={},intervals=[];
+ const listeners={},intervals=[],audio={resumes:0,starts:0,stops:0};
+ class FakeAudioContext{
+  destination={};
+  resume(){audio.resumes++;return Promise.resolve();}
+  async decodeAudioData(){return {syntheticBuffer:true};}
+  createBufferSource(){return {connect(){},start(){audio.starts++;},stop(){audio.stops++;}};}
+ }
  const context=vm.createContext({
   document:{body:{classList:classes()},querySelector(selector){assert.ok(elements.has(selector),`Unknown element ${selector}`);return elements.get(selector);},addEventListener(type,callback){listeners[type]=callback;}},
-  location:{search:''},URLSearchParams,AbortSignal,
+  location:{search:''},URLSearchParams,AbortSignal,AudioContext:FakeAudioContext,
   Date:{now:()=>now},
-  fetch:async()=>{if(offline)throw Error('Offline');return {ok:true,json:async()=>structuredClone(feed)};},
+  fetch:async url=>{if(String(url).includes('timer-chime.mp3'))return {ok:soundAvailable,arrayBuffer:async()=>new ArrayBuffer(8)};if(offline)throw Error('Offline');return {ok:true,json:async()=>structuredClone(feed)};},
   setTimeout:()=>{},setInterval:callback=>intervals.push(callback),
  });
  vm.runInContext(script,context);
  await new Promise(resolve=>setImmediate(resolve));
  return {
   get:selector=>elements.get(selector),
+  audio,
+  async settle(){await new Promise(resolve=>setImmediate(resolve));},
   advance(ms){now+=ms;for(const callback of intervals)callback();},
   async poll(next=feed){feed=next;await context.poll();},
   offline(value){offline=value;},
@@ -55,6 +63,40 @@ test('loading or refreshing leaves five minutes ready until Start timer is click
  refreshed.advance(60000);
  assert.equal(refreshed.get('#timer-value').textContent,'05:00');
  assert.equal(refreshed.get('#start-timer').disabled,false);
+});
+
+test('Start timer unlocks audio without playing; expiry plays the chime exactly once',async()=>{
+ const page=await display(fixture());
+ assert.equal(page.audio.resumes,0);
+ page.get('#start-timer').onclick();
+ assert.equal(page.audio.resumes,1);
+ await page.settle();
+ assert.equal(page.audio.starts,0);
+ page.advance(299000);await page.settle();assert.equal(page.audio.starts,0);
+ page.advance(1000);await page.settle();assert.equal(page.audio.starts,1);
+ page.advance(10000);page.visibleAgain();await page.poll();await page.settle();
+ assert.equal(page.audio.starts,1);
+});
+
+test('each new round can sound once and cancels the previous round sound',async()=>{
+ const first=fixture(),page=await display(first);
+ page.get('#start-timer').onclick();await page.settle();page.advance(300000);await page.settle();
+ assert.equal(page.audio.starts,1);
+ await page.poll(fixture({version:2,currentRound:2,rounds:[...first.rounds,{...first.rounds[0],number:2}]}));
+ assert.equal(page.audio.stops,1);
+ page.advance(300000);await page.settle();assert.equal(page.audio.starts,1);
+ page.get('#start-timer').onclick();await page.settle();page.advance(300000);await page.settle();
+ assert.equal(page.audio.starts,2);
+});
+
+test('an unavailable sound is reported while the countdown continues to zero',async()=>{
+ const page=await display(fixture(),{soundAvailable:false});
+ page.get('#start-timer').onclick();await page.settle();
+ assert.equal(page.get('#timer-audio-status').hidden,false);
+ assert.match(page.get('#timer-audio-status').textContent,/sound is unavailable/);
+ page.advance(300000);await page.settle();
+ assert.equal(page.get('#timer-value').textContent,'00:00');
+ assert.equal(page.audio.starts,0);
 });
 
 test('a newly released round waits for Start timer; viewing history preserves the countdown',async()=>{
