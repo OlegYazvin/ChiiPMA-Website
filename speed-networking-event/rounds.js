@@ -3,7 +3,7 @@ const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>
 let state=null,selected=0,lastVersion=-1;
 const ROUND_DURATION=5*60*1000;
 let timerRound=null,timerDeadline=null,timerRemaining=ROUND_DURATION;
-const TIMER_CHIME='/speed-networking-event/timer-chime.mp3?v=1';
+const TIMER_CHIME='/speed-networking-event/timer-chime.mp3?v=2';
 let alarmContext=null,alarmLoading=null,alarmSource=null,alarmPlayed=false;
 if(new URLSearchParams(location.search).has('display'))document.body.classList.add('presentation');
 function audioUnavailable(){const status=$('#timer-audio-status');status.textContent='Timer sound is unavailable.';status.hidden=false;}
