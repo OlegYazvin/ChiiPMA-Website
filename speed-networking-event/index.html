@@ -7,8 +7,8 @@
   <meta name="description" content="Current ChiPMA networking round, station numbers, and partners.">
   <title>Networking rounds | ChiPMA</title>
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="rounds.css?v=5">
-  <script type="module" src="rounds.js?v=5"></script>
+  <link rel="stylesheet" href="rounds.css?v=6">
+  <script type="module" src="rounds.js?v=6"></script>
 </head>
 <body>
   <a class="skip" href="#matches">Skip to assignments</a>
@@ -20,8 +20,11 @@
     </section>
     <div id="test-banner" class="test-banner" role="status" hidden>TEST RUN — The event has not started.</div>
     <section class="round-bar" aria-label="Current round">
-      <div><span id="event-status">WAITING</span><strong id="round-label">Waiting for round 1</strong></div>
-      <span id="round-counter">12 rounds · Stations 1–20</span>
+      <div class="round-heading"><span id="event-status">WAITING</span><strong id="round-label">Waiting for round 1</strong></div>
+      <div class="round-meta">
+        <div id="countdown" hidden><span id="timer-label">Round time left</span><strong id="timer-value" role="timer" aria-live="off" aria-labelledby="timer-label">05:00</strong></div>
+        <span id="round-counter">12 rounds · Stations 1–20</span>
+      </div>
     </section>
     <div id="connection" role="status" aria-live="polite">Connecting…</div>
     <section id="lead-question" class="lead-question" aria-labelledby="lead-question-label" hidden>
