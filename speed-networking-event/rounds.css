@@ -24,6 +24,7 @@ h1 { margin: 0; font-size: 20px; font-weight: 700; }
 #start-timer { padding: 10px 12px; border: 0; border-radius: 5px; background: #0b74c9; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
 #start-timer:disabled { background: #eaf1f6; color: #537087; cursor: default; }
 #timer-audio-status { grid-column: 1 / -1; margin: 0; color: #9b4513; font-size: 12px; line-height: 1.5; }
+#timer-control-status { grid-column: 1 / -1; margin: 0; color: #9b4513; font-size: 12px; line-height: 1.5; }
 #countdown.complete { border-color: #d4ab61; background: #fff3d6; color: #68430d; }
 #event-status { font-size: 10px; font-weight: 800; letter-spacing: .08em; color: #b5d9ee; }
 #round-label { font-size: 25px; font-weight: 700; }

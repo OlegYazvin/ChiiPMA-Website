@@ -4,11 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
   <meta name="description" content="Current ChiPMA networking round, station numbers, and partners.">
   <title>Networking rounds | ChiPMA</title>
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="rounds.css?v=10">
-  <script type="module" src="rounds.js?v=10"></script>
+  <link rel="stylesheet" href="rounds.css?v=11">
+  <script type="module" src="rounds.js?v=11"></script>
 </head>
 <body>
   <a class="skip" href="#matches">Skip to assignments</a>
@@ -32,7 +33,8 @@
       <aside id="countdown" aria-label="Round timer" hidden>
         <span id="timer-label">Ready to start</span>
         <strong id="timer-value" role="timer" aria-live="off" aria-labelledby="timer-label">05:00</strong>
-        <button id="start-timer" type="button">Start timer</button>
+        <button id="start-timer" type="button" hidden>Start timer</button>
+        <p id="timer-control-status" role="status" hidden></p>
         <p id="timer-audio-status" role="status" hidden></p>
       </aside>
       <section id="matches">
