@@ -3,10 +3,10 @@ const html=readFileSync(new URL('../speed-networking-event/participant/index.htm
 const sample=()=>({name:'Synthetic Person',isTest:false,status:'live',completedThroughRound:1,profile:{version:0,contacts:{linkedin:'',email:'',phone:'',other:''}},rounds:[{number:1,station:1,partner:'Synthetic Partner',leadQuestion:'Synthetic question?',response:null,mutual:false,contacts:null}]});
 const flush=()=>new Promise(r=>setImmediate(r));
 async function page(){
- const server=sample(),requests=[],fields=Object.fromEntries(['linkedin','email','phone','other'].map(name=>[name,{name,value:''}])),nodes=new Map(),listeners=new Map();let closeOnSave=false,copied='';
+ const server=sample(),requests=[],fields=Object.fromEntries(['linkedin','email','phone','other'].map(name=>[name,{name,value:''}])),nodes=new Map(),listeners=new Map(),windowListeners=new Map();let closeOnSave=false,copied='',reloaded=false;
  for(const match of html.matchAll(/id="([^"]+)"/g))nodes.set('#'+match[1],{hidden:false,textContent:'',innerHTML:'',value:'',classList:{toggle(){}},addEventListener(type,cb){listeners.set(type,cb);},select(){}});
  nodes.get('#contact-form').elements={namedItem:name=>fields[name],*[Symbol.iterator](){yield* Object.values(fields);}};
- const context=vm.createContext({document:{querySelector:s=>{assert(nodes.has(s),s);return nodes.get(s);}},location:{hash:'#'+'A'.repeat(43),href:'https://chipma.org/speed-networking-event/participant/#'+'A'.repeat(43)},navigator:{clipboard:{async writeText(value){copied=value;}}},AbortSignal,setTimeout(){},FormData:class{constructor(form){this.form=form;}*[Symbol.iterator](){for(const field of this.form.elements)yield [field.name,field.value];}},fetch:async(url,options={})=>{
+ const context=vm.createContext({document:{querySelector:s=>{assert(nodes.has(s),s);return nodes.get(s);}},location:{hash:'#'+'A'.repeat(43),href:'https://chipma.org/speed-networking-event/participant/#'+'A'.repeat(43),reload(){reloaded=true;}},addEventListener:(type,callback)=>windowListeners.set(type,callback),navigator:{clipboard:{async writeText(value){copied=value;}}},AbortSignal,setTimeout(){},FormData:class{constructor(form){this.form=form;}*[Symbol.iterator](){for(const field of this.form.elements)yield [field.name,field.value];}},fetch:async(url,options={})=>{
   const body=options.body?JSON.parse(options.body):null;if(body)requests.push({url,body});
   if(body&&url.endsWith('/contact')){if(closeOnSave)return {ok:false,status:410,json:async()=>({error:'These participant pages are closed.'})};server.profile={version:server.profile.version+1,contacts:body.contacts};}
   if(body&&url.includes('/rounds/')){const r=server.rounds.find(r=>url.endsWith('/'+r.number));r.response={...body,submittedAt:'2026-11-19T18:00:00Z'};}
@@ -14,7 +14,7 @@ async function page(){
  }});
  vm.runInContext(script,context);await flush();
  const target=(name,value,round=1)=>({name,value,closest:()=>({dataset:{round:String(round)}})});
- return {server,requests,fields,get:s=>nodes.get(s),change(name,value,round){listeners.get('change')({target:target(name,value,round)});},async submit(round=1){await listeners.get('submit')({preventDefault(){},target:target('','',round)});},async save(){await nodes.get('#contact-form').onsubmit({preventDefault(){}});},poll:()=>context.poll(),closeOnSave(){closeOnSave=true;},get copied(){return copied;}};
+ return {server,requests,fields,get:s=>nodes.get(s),change(name,value,round){listeners.get('change')({target:target(name,value,round)});},async submit(round=1){await listeners.get('submit')({preventDefault(){},target:target('','',round)});},async save(){await nodes.get('#contact-form').onsubmit({preventDefault(){}});},poll:()=>context.poll(),closeOnSave(){closeOnSave=true;},get copied(){return copied;},switchLink(){windowListeners.get('hashchange')();},get reloaded(){return reloaded;}};
 }
 
 test('ratings and stay-in-touch selections do not submit until the per-round Submit action',async()=>{
@@ -36,4 +36,8 @@ test('closing access removes displayed information and saving cannot reopen the 
 
 test('Copy my link includes the private fragment for bookmarking and reuse',async()=>{
  const p=await page();await p.get('#copy-link').onclick();assert(p.copied.endsWith('#'+'A'.repeat(43)));
+});
+
+test('opening a different personal link reloads the app instead of retaining the previous identity',async()=>{
+ const p=await page();p.switchLink();assert.equal(p.reloaded,true);
 });

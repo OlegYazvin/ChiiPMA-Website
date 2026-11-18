@@ -4,6 +4,7 @@ let state=null,selected=0,lastVersion=-1;
 const ROUND_DURATION=5*60*1000;
 let timerRound=null,timerDeadline=null,timerRemaining=ROUND_DURATION,serverClockOffset=0,alarmArmed=false,timerBusy=false;
 let hostToken='';
+globalThis.addEventListener?.('hashchange',()=>location.reload());
 try{const incoming=new URLSearchParams(location.hash.slice(1)).get('host');hostToken=incoming||sessionStorage.getItem('chipma-timer-host')||'';if(incoming){sessionStorage.setItem('chipma-timer-host',incoming);history.replaceState(null,'',location.pathname+location.search);}}catch{}
 const TIMER_CHIME='/speed-networking-event/timer-chime.mp3?v=2';
 let alarmContext=null,alarmLoading=null,alarmSource=null,alarmPlayed=false;

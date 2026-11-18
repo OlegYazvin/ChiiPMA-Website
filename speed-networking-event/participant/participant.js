@@ -1,6 +1,7 @@
 const BASE='https://chipma-networking-results.mikesmythe.chatgpt.site/api';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const token=location.hash.slice(1),faces={frown:'☹️',neutral:'😐',smile:'🙂'},drafts=new Map(),errors=new Map(),submitting=new Set();
+globalThis.addEventListener?.('hashchange',()=>location.reload());
 let state=null,profileDirty=false,profileVersion=0,profileBusy=false,closed=false,lastRounds='';
 function notice(message,error=false){$('#notice').hidden=!message;$('#notice').textContent=message;$('#notice').classList.toggle('error',error);}
 async function api(path='',body){const r=await fetch(BASE+'/participant'+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+token,...body?{'Content-Type':'application/json'}:{}},body:body?JSON.stringify(body):undefined,credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(15000)});let data;try{data=await r.json();}catch{throw Error('The connection was interrupted. Try again.');}if(!r.ok)throw Object.assign(Error(data.error||'Unable to save.'),{status:r.status});return data;}
