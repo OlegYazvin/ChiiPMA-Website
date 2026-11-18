@@ -13,6 +13,7 @@ function render(){
  $('#section-eyebrow').textContent=hasRounds?selected===live?'CURRENT ROUND':'PREVIOUS ROUND':'CURRENT ROUND';
  $('#section-title').textContent=hasRounds?`Round ${selected}: Station assignments`:'Stations and partners';
  const query=$('#name-search').value.trim().toLocaleLowerCase(),r=state.rounds?.find(r=>r.number===selected);
+ $('#lead-question').hidden=!r?.leadQuestion;$('#lead-question-text').textContent=r?.leadQuestion||'';
  const pairs=(r?.matches||[]).filter(p=>!query||p.names.some(n=>n.toLocaleLowerCase().includes(query)));
  $('#pair-grid').innerHTML=pairs.map(p=>`<tr class="${query?'highlight':''}"><th scope="row">${String(p.station??p.pairNumber).padStart(2,'0')}</th><td>${esc(p.names[0])}</td><td>${esc(p.names[1])}</td></tr>`).join('');
  $('#no-results').hidden=!hasRounds||pairs.length>0;
