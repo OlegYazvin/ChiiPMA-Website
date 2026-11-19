@@ -2,45 +2,56 @@ const FEED='https://chipma-networking-results.mikesmythe.chatgpt.site/api/state'
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let state=null,selected=0,lastVersion=-1;
 const ROUND_DURATION=5*60*1000;
-let timerRound=null,timerDeadline=null,timerRemaining=ROUND_DURATION,serverClockOffset=0,alarmArmed=false,soundEnabled=false,audioBusy=false;
+let timerRound=null,timerDeadline=null,timerRemaining=ROUND_DURATION,serverClockOffset=0,alarmArmed=false;
 const displayMode=new URLSearchParams(location.search).has('display');
 globalThis.addEventListener?.('hashchange',()=>location.reload());
 // Retire old display capabilities; timer writes now stay inside the admin app.
 try{sessionStorage.removeItem('chipma-timer-host');if(new URLSearchParams(location.hash.slice(1)).has('host'))history.replaceState(null,'',location.pathname+location.search);}catch{}
 const TIMER_CHIME='/speed-networking-event/timer-chime.mp3?v=2';
-let alarmContext=null,alarmLoading=null,alarmSource=null,alarmPlayed=false;
+let alarmContext=null,alarmLoading=null,alarmSource=null,alarmPlayed=false,alarmSounded=false,alarmError=false;
 if(displayMode)document.body.classList.add('presentation');
-function audioUnavailable(){const status=$('#timer-audio-status');status.textContent='Timer sound is unavailable.';status.hidden=false;}
+function renderAudioStatus(){
+ const status=$('#timer-audio-status');
+ status.textContent=alarmError?'Timer sound could not load. Check the connection, then click this page to retry.':alarmContext&&alarmContext.state!=='running'?'Your browser needs one click, tap, or keypress on this page to allow audio. The chime then plays automatically after every round.':'';
+ status.hidden=!status.textContent;
+}
+function audioUnavailable(){alarmError=true;renderAudioStatus();}
 async function prepareAlarm(){
  const AudioContext=globalThis.AudioContext||globalThis.webkitAudioContext;
  if(!AudioContext)throw Error('Audio is unavailable.');
- alarmContext??=new AudioContext();
- // Resume inside the sound-enable click so later playback has audio permission.
+ if(!alarmContext||alarmContext.state==='closed'){alarmContext=new AudioContext();alarmContext.onstatechange=renderAudioStatus;}
+ // Try autoplay on load. An ordinary page interaction retries resume when the
+ // browser requires user activation; there is no optional sound setting.
  const resuming=alarmContext.resume();
+ renderAudioStatus();
  alarmLoading??=fetch(TIMER_CHIME,{cache:'force-cache'}).then(async response=>{
   if(!response.ok)throw Error('Timer sound could not load.');
   return alarmContext.decodeAudioData(await response.arrayBuffer());
  }).catch(error=>{alarmLoading=null;throw error;});
  const [,buffer]=await Promise.all([resuming,alarmLoading]);
- $('#timer-audio-status').hidden=true;
+ alarmError=false;renderAudioStatus();
  return buffer;
+}
+function primeAlarm(){
+ if(alarmError&&!alarmSounded)alarmPlayed=false;
+ prepareAlarm().then(()=>{if(state)renderTimer();}).catch(audioUnavailable);
 }
 function stopAlarm(){if(alarmSource){alarmSource.stop();alarmSource=null;}}
 function playAlarm(){
  if(alarmPlayed)return;
  alarmPlayed=true;const key=timerRound;
  prepareAlarm().then(buffer=>{
-  if(timerRound!==key||timerDeadline===null||state?.status!=='live'||Date.now()+serverClockOffset<timerDeadline||!soundEnabled||!alarmArmed)return;
+  if(timerRound!==key||timerDeadline===null||state?.status!=='live'||Date.now()+serverClockOffset<timerDeadline||!alarmArmed)return;
   const source=alarmContext.createBufferSource();alarmSource=source;source.buffer=buffer;
-  source.connect(alarmContext.destination);source.onended=()=>{if(alarmSource===source)alarmSource=null;};source.start();
+  source.connect(alarmContext.destination);source.onended=()=>{if(alarmSource===source)alarmSource=null;};source.start();alarmSounded=true;
  }).catch(audioUnavailable);
 }
 function syncTimer(next){
  const key=next.currentRound>0?`${next.runId}:${next.currentRound}`:null;
- if(key!==timerRound){stopAlarm();alarmPlayed=false;alarmArmed=false;timerRound=key;$('#timer-audio-status').hidden=true;}
+ if(key!==timerRound){stopAlarm();alarmPlayed=false;alarmSounded=false;alarmArmed=false;timerRound=key;}
  if(Number.isFinite(next.serverNow))serverClockOffset=next.serverNow-Date.now();
  const timer=next.timer;timerRemaining=timer?.remainingMs??ROUND_DURATION;timerDeadline=timer?.deadlineAt??null;
- if(soundEnabled&&next.status==='live'&&timerDeadline!==null&&timerRemaining>0)alarmArmed=true;
+ if(next.status==='live'&&timerDeadline!==null&&timerRemaining>0)alarmArmed=true;
  if(next.status!=='live')stopAlarm();
 }
 function renderTimer(){
@@ -51,11 +62,9 @@ function renderTimer(){
  const remaining=Math.ceil((timerDeadline===null?timerRemaining:Math.max(0,timerDeadline-Date.now()-serverClockOffset))/1000);
  $('#timer-value').textContent=`${String(Math.floor(remaining/60)).padStart(2,'0')}:${String(remaining%60).padStart(2,'0')}`;
  $('#timer-label').textContent=state.status==='break'?`Round ${state.currentRound} paused`:remaining===0?'Time is up':timerDeadline!==null?`Round ${state.currentRound} time left`:`Round ${state.currentRound} · ${timerRemaining===ROUND_DURATION?'ready':'paused'}`;
- $('#enable-timer-sound').hidden=!displayMode;
- $('#enable-timer-sound').disabled=audioBusy||soundEnabled||remaining===0;
- $('#enable-timer-sound').textContent=audioBusy?'Enabling sound…':soundEnabled?'Timer sound enabled':'Enable timer sound';
+ renderAudioStatus();
  $('#countdown').classList.toggle('complete',remaining===0);
- if(state.status==='live'&&timerDeadline!==null&&remaining===0&&soundEnabled&&alarmArmed)playAlarm();
+ if(state.status==='live'&&timerDeadline!==null&&remaining===0&&alarmArmed)playAlarm();
 }
 function render(){
  if(!state)return;const live=state.currentRound||0,hasRounds=live>0;
@@ -84,15 +93,10 @@ async function poll(){
  setTimeout(poll,3000);
 }
 $('#name-search').oninput=render;
-$('#enable-timer-sound').onclick=async()=>{
- if(!displayMode||!state||audioBusy||soundEnabled||state.timer?.complete||timerRemaining<=0)return;
- audioBusy=true;soundEnabled=true;
- if(timerDeadline!==null&&Date.now()+serverClockOffset<timerDeadline)alarmArmed=true;
- renderTimer();
- try{await prepareAlarm();}catch{soundEnabled=false;alarmArmed=false;audioUnavailable();}
- finally{audioBusy=false;renderTimer();}
-};
+document.addEventListener('click',primeAlarm,{capture:true});
+document.addEventListener('keydown',primeAlarm,{capture:true});
 $('#round-tabs').onclick=e=>{if(e.target.dataset.round){selected=Number(e.target.dataset.round);render();}};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state)render();});
 setInterval(renderTimer,1000);
+primeAlarm();
 poll();
