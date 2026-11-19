@@ -1,18 +1,22 @@
-# Local speed-networking research
+# Speed-networking data and administration
 
-Attendee research lives in `.private/speed-networking-event/attendees.json`.
-The entire `.private/` directory is Git-ignored. Its contents are local to this
-checkout: Git does not version, synchronize, or back them up. Keep research notes
-and the unresolved-match review list in that same directory. Do not copy attendee
-details into tracked documentation, public pages, or test fixtures.
+The hosted admin is the source of truth for event operation. Private research,
+print PDFs, and workspace downloads are retained under **Files & handoff** in
+the owner-private admin app. Its **Download current event backup** exports the
+current roster, questions, links, contacts, responses, timers, and restart archives.
+Use the same ChatGPT account and workspace to open these on another device.
 
-Research uses the user's authorized, logged-in LinkedIn session. Access can
-come from a connected browser or an authorized local-session reader when the
-environment provides that capability. Keep authentication values in memory;
-never put them in research files, logs, or version control. Until authenticated
-access is available, records remain explicitly pending or blocked, with no
-selected profile or invented research outcome. Public search does not replace
-the requested authenticated source.
+Local `.private/speed-networking-event/` files are ignored working copies and
+historical snapshots. Git does not synchronize that directory; upload new private
+files through Files & handoff. Do not copy attendee details or QR access codes
+into tracked documentation, public pages, or test fixtures. Development source
+and cross-machine instructions are versioned in [.event-apps](.event-apps/README.md).
+
+Research records distinguish authenticated LinkedIn information, public sources,
+and organizer confirmations. Use the authorized connected session when requested;
+do not claim authenticated access for public evidence. Keep authentication values
+in memory, never in research files, logs, source mirrors, or exported workspaces.
+Unverified details remain empty, with source limitations and inferences recorded.
 
 ## Dataset format
 
@@ -106,12 +110,15 @@ git diff --check
 
 ## Round organizer and public display
 
-The organizer runs as an owner-private ChatGPT Site, with source in the ignored
-`.private/sites/` directory. It imports a minimal scheduling roster: stable IDs,
+The organizer runs as an owner-private ChatGPT Site. Its complete source and the
+participant backend source are mirrored in `.event-apps/organizer` and
+`.event-apps/results`. Fresh Sites checkouts can live under ignored `.private/sites/`;
+reuse the hosted project IDs listed in the handoff rather than creating new Sites. It imports a minimal scheduling roster: stable IDs,
 display names, attendance selections, MPD² cohort membership, accepted levels,
 job categories, employment status, and whether leadership is current. Current
 leadership is separate from a student's highest historical professional level.
-LinkedIn research, profile URLs, and professional histories stay local.
+LinkedIn research, profile URLs, and professional histories stay in the private
+admin file library and its downloadable research workspace.
 
 The tool creates twelve complete rounds and prohibits repeated pairs. Student
 conversations are restricted to the two configured part-time year groups: one
@@ -130,8 +137,11 @@ until attendance is confirmed; they do not participate in generated rounds.
 The roster and schedule freeze when the host starts the real event. A separate
 Start test action rehearses the public display with an explicit TEST RUN banner.
 Reset test clears released test rounds, returns the display to waiting, and
-unlocks the roster while preserving the generated schedule. Real event rounds
-cannot be reset through these controls.
+unlocks the roster while preserving the generated schedule. Reset real event is available after a real start, including before its timer
+starts or after round 12. Confirmation returns all screens to waiting, unlocks
+attendance, and clears active timers and responses. The previous attempt is
+archived privately. Contacts, QR codes, roster, questions, and schedule are kept.
+A new attempt ID prevents stale feedback and timer requests from crossing resets.
 
 Only the results viewer lives at `https://www.chipma.org/speed-networking-event`.
 A separate public service supplies released round numbers, station numbers, pair numbers, and
@@ -140,8 +150,9 @@ question bank, draft assignments, professional classifications, or unreleased ro
 writes require a server-held secret and version checks; public reads contain no
 admin credential. Keep this separation when updating either Site.
 
-Local scheduling input, leadership evidence, generated JSON, and downloadable
-CSV remain inside `.private/speed-networking-event/`. The organizer permits
+Scheduling input, leadership evidence, research JSON, and CSV exports are retained
+in the private admin file library. Local copies can remain under
+`.private/speed-networking-event/`. The organizer permits
 attendance edits and regeneration before the event starts. Its automated tests
 use synthetic rosters and do not require the local attendee data.
 
@@ -163,8 +174,10 @@ Participants can bookmark or copy their full link, including its fragment.
 
 Three reserved cards, labeled Person 1–3, have stable private URLs backed by
 protected QR-reservation records. Their unchecked roster rows carry `qrSlot`
-and `qrPending` markers. The next three names entered through Add attendee
-claim those rows in order and keep the printed URLs. New attendees begin
+and `qrPending` markers. Available cards can be assigned to an existing attendee from Personal pages.
+Otherwise, new names entered through Add attendee claim unassigned cards in
+order and keep the printed URLs. Existing-attendee assignments preserve their
+IDs and use the private `qrAssignments` mapping. New attendees begin
 not participating; selecting participation and regenerating the schedule is
 a separate organizer action. An unassigned card shows a waiting page and
 cannot save contacts or submit ratings. After assignment it becomes that
@@ -179,7 +192,7 @@ final conversation responses, and server-authoritative round timers in D1. Link
 records contain verification hashes and nonces; the server derives printable
 links with its runtime `PARTICIPANT_LINK_SECRET`. Keep that signing secret stable
 for the event. The management write credential is separate and never reaches a
-participant or the public display. Professional research remains local and is
+participant or the public display. Professional research stays in the private admin file library and is
 not imported into contact forms; each contact form starts blank.
 
 Participants explicitly save contact details and submit each completed round
@@ -240,3 +253,22 @@ station, so keeping half of the attendees seated each transition is optimal.
 The private metrics report stays, movements, and attendees who keep one station
 throughout. CSV downloads and the public display include explicit station
 numbers. Unused stations stay idle when fewer than 42 attendees participate.
+
+## Source and private-file portability
+
+The main repository contains complete source mirrors, including bundled assets
+and lockfiles, under `.event-apps/`. The source manifest records the exact Sites
+commits and file checksums. Both publishing mechanisms omit this hidden directory;
+portability tests verify that source mirrors contain no private research or env
+files and remain absent from the Pages artifact.
+
+The admin app stores files in its server-side private R2 binding. Uploads are
+checksummed; downloads are authenticated attachments and are never copied into
+public assets. The private workspace archive retains research, notes, scripts,
+print files, and validation history. Unpublished website changes are preserved
+separately for review, rather than automatically deployed. Dependency caches are
+recreated from the included package versions and lockfiles.
+
+Keep hosted project IDs, storage bindings, and runtime signing secrets stable.
+Source code is in GitHub; service credentials remain configured on the hosted
+projects. A new computer does not require a new Site, new QR codes, or a reset.

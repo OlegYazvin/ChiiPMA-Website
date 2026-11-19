@@ -1,0 +1,1 @@
+export default function Home(){return <main><p>ChiPMA · November 19, 2026</p><h1>Your next conversation starts here.</h1><p>Find your released networking round on the ChiPMA event display.</p><a href="https://www.chipma.org/speed-networking-event">Open networking rounds →</a></main>;}
