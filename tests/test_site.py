@@ -47,7 +47,7 @@ class ProductionReadinessTests(unittest.TestCase):
             self.assertIn("width", image)
             self.assertIn("height", image)
             if image.get("src", "").startswith("assets/"):
-                self.assertTrue((ROOT / image["src"]).is_file(), image["src"])
+                self.assertTrue((ROOT / image["src"].split("?", 1)[0]).is_file(), image["src"])
         self.assertTrue((ROOT / "assets/apple-touch-icon.png").is_file())
 
     def test_known_calls_to_action_and_footer_order(self):
