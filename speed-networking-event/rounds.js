@@ -72,7 +72,7 @@ function render(){
  $('#test-banner').hidden=!state.isTest;document.body.classList.toggle('is-test',!!state.isTest);
  $('#event-status').textContent={waiting:'WAITING',live:'ROUND IN PROGRESS',break:'BREAK',finished:'EVENT COMPLETE'}[state.status]||'WAITING';
  $('#round-label').textContent=state.status==='waiting'?'Waiting for round 1':state.status==='finished'?'All 12 rounds complete':state.status==='break'?`On a break after round ${live}`:`Round ${live} of 12`;
- $('#round-counter').textContent=hasRounds?`${state.isTest?'TEST · ':''}${live} of 12 rounds released`:'12 rounds · Stations 1–20';
+ $('#round-counter').textContent=hasRounds?`${state.isTest?'TEST · ':''}${live} of 12 rounds released`:'12 rounds · Stations 1–21';
  $('#waiting').hidden=hasRounds;$('#search-wrap').hidden=!hasRounds;$('#round-tabs').hidden=!hasRounds;$('#history').hidden=!hasRounds;$('#table-wrap').hidden=!hasRounds;
  $('#round-tabs').innerHTML=(state.rounds||[]).map(r=>`<button data-round="${r.number}" class="${selected===r.number?'selected':''}" aria-pressed="${selected===r.number}">Round ${r.number}</button>`).join('');
  $('#section-eyebrow').textContent=hasRounds?selected===live?'CURRENT ROUND':'PREVIOUS ROUND':'CURRENT ROUND';

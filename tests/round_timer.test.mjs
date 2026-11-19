@@ -78,3 +78,19 @@ test('an autoplay block is visible and an ordinary click unlocks all later alarm
 test('a keypress unlocks blocked audio without changing a running countdown',async()=>{
  const page=await display(fixture(),{autoplayBlocked:true});await page.startRemote();page.advance(120000);await page.interact('keydown');assert.equal(page.get('#timer-value').textContent,'03:00');assert.equal(page.requests.length,0);page.advance(180000);await page.settle();assert.equal(page.audio.starts,1);
 });
+
+
+test('all 42 attendees are shown across 21 stations and the last station remains searchable',async()=>{
+ assert.match(html,/12 rounds · Stations 1–21/);
+ const page=await display(fixture({status:'waiting',currentRound:0,rounds:[]}));
+ assert.equal(page.get('#round-counter').textContent,'12 rounds · Stations 1–21');
+ const matches=Array.from({length:21},(_,i)=>({station:i+1,names:[`Synthetic Attendee ${i*2+1}`,`Synthetic Attendee ${i*2+2}`]}));
+ await page.poll(fixture({version:2,rounds:[{number:1,matches}]}));
+ assert.equal((page.get('#pair-grid').innerHTML.match(/<tr /g)||[]).length,21);
+ for(const pair of matches)for(const name of pair.names)assert.ok(page.get('#pair-grid').innerHTML.includes(`>${name}</td>`));
+ page.get('#name-search').value='Synthetic Attendee 42';page.get('#name-search').oninput();
+ assert.equal((page.get('#pair-grid').innerHTML.match(/<tr /g)||[]).length,1);
+ assert.match(page.get('#pair-grid').innerHTML,/<th scope="row">21<\/th>/);
+ assert.ok(page.get('#pair-grid').innerHTML.includes('Synthetic Attendee 41'));
+ assert.ok(page.get('#pair-grid').innerHTML.includes('Synthetic Attendee 42'));
+});

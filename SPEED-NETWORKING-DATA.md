@@ -228,8 +228,8 @@ and [Pages artifact action v4](https://github.com/actions/upload-pages-artifact/
 
 ## Station assignments
 
-There are 20 physical stations, numbered 1–20, with one conversation per active
-station in each round. Attendance is capped at 40 active people. Station
+There are 21 physical stations, numbered 1–21, with one conversation per active
+station in each round. Attendance is capped at 42 active people. Station
 assignment preserves the generated pairs and all matching priorities.
 
 When the conversation graph has two equal groups, one group keeps fixed
@@ -239,4 +239,4 @@ With unique partners, at most one person in each pair can stay at the prior
 station, so keeping half of the attendees seated each transition is optimal.
 The private metrics report stays, movements, and attendees who keep one station
 throughout. CSV downloads and the public display include explicit station
-numbers. Unused stations stay idle when fewer than 40 attendees participate.
+numbers. Unused stations stay idle when fewer than 42 attendees participate.
