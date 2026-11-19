@@ -101,7 +101,9 @@ export async function POST(request:Request){
     if(path==="/api/save"){
       if(s.locked||s.pending)return json({error:"The roster and schedule are frozen after Start."},409);
       const live=await feed();if(live.currentRound>0)return json({error:"The event has already started."},409);
-      const roster=normalizeRoster(b.roster);participants(roster);
+      // Attendance is a draft until a schedule is generated. Keep identity and
+      // classification checks here; validateSchedule checks matching eligibility.
+      const roster=normalizeRoster(b.roster);
       validateQrSlots(s.roster,roster);
       validateExistingQrAssignments({...s,roster});
       let schedule=null;if(b.schedule){validateSchedule(roster,b.schedule);const planned=assignStations(b.schedule,roster),metrics=validateSchedule(roster,planned);schedule={id:String(planned.id).slice(0,100),seed:Number(planned.seed),rounds:planned.rounds,stationPlan:planned.stationPlan,method:String(planned.method||"Generated").slice(0,100),optimizationStatus:String(planned.optimizationStatus||"feasible").slice(0,40),metrics};}

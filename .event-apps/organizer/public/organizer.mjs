@@ -25,7 +25,7 @@ function renderHostControls(){if(!state)return;
  hostTimer?.render();
 }
 function render(){
- if(!state)return;let count=0;try{count=participants(state.roster).length;}catch{}
+ if(!state)return;const regularCount=state.roster.filter(a=>a.included&&!a.parityReserve).length,count=regularCount+(regularCount%2&&state.roster.some(a=>a.included&&a.parityReserve)?1:0);
  $('#roster-count').textContent=count;const m=state.schedule?.metrics,grouped=usesStudentGroups(state.roster),byId=new Map(state.roster.map(a=>[a.id,a]));
  const pairType=p=>p.every(id=>byId.get(id)?.isMpdStudent)?'student':p.every(id=>!byId.get(id)?.isMpdStudent)?'other':'mixed';
  const person=id=>{const a=byId.get(id),student=!!a?.isMpdStudent;return `<span class="attendee-chip ${student?'cohort-student':'cohort-other'}"><span class="attendee-name-row"><span>${esc(a?.name??id)}</span>${peopleLeaderBadge(a)}</span><small>${student?'MPD² student':'Other attendee'}</small></span>`;};

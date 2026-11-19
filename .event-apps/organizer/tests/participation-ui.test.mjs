@@ -20,6 +20,25 @@ function setup(roster){
  return {$,ctx,snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify({state,dirty})',ctx))};
 }
 
+test('participant totals remain visible while attendance is incomplete or cannot generate a schedule',()=>{
+ for(const roster of [[],Array.from({length:3},(_,i)=>person(`partial-${i}`,true)),Array.from({length:15},(_,i)=>person(`odd-${i}`,true)),Array.from({length:44},(_,i)=>person(`over-capacity-${i}`,true)),Array.from({length:14},(_,i)=>person(`team-${i}`,true,{teamId:'same-team'}))]){
+  const {$,ctx}=setup(roster);let validations=0;
+  ctx.participants=()=>{validations++;throw Error('This draft is not ready for generation.');};
+  vm.runInContext('render();',ctx);
+  assert.equal($('#roster-count').textContent,roster.length);
+  assert.match($('#metrics').innerHTML,new RegExp(`<strong>${roster.length}</strong><span>Participants</span>`));
+  assert.equal(validations,0);
+ }
+});
+
+test('participant totals include the selected parity reserve only for an odd regular count',()=>{
+ for(const [regularCount,reserveIncluded,expected] of [[0,true,0],[3,false,3],[3,true,4],[4,true,4],[4,false,4]]){
+  const roster=[...Array.from({length:regularCount},(_,i)=>person(`regular-${i}`,true)),person('reserve',reserveIncluded,{parityReserve:true})],{$}=setup(roster);
+  assert.equal($('#roster-count').textContent,expected);
+  assert.equal($('#participation-summary').textContent,`${regularCount+Number(reserveIncluded)} of ${roster.length} selected.`);
+ }
+});
+
 test('bulk attendance clears selections, then selects all real attendees while leaving unassigned QR cards unchecked',()=>{
  const roster=[person('a',true,{isMpdStudent:true,teamId:'team-a'}),person('b',false),person('reserve',true,{parityReserve:true,studentOnlyPartners:true}),person('qr-person-1',false,{qrSlot:1,qrPending:true}),person('qr-person-2',false,{qrSlot:2,qrPending:false})];
  const {$,ctx,snapshot}=setup(roster);

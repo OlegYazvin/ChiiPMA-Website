@@ -1,4 +1,4 @@
-import {normalizeRoster,participants,validateSchedule} from './matching.mjs';
+import {normalizeRoster,validateSchedule} from './matching.mjs';
 import {claimNextQrPerson} from './qr-slots.mjs';
 import {validateExistingQrAssignments} from './reserved-card-assignment.mjs';
 
@@ -9,7 +9,6 @@ export function addNonparticipant(state,attendee){
  const assignments=validateExistingQrAssignments(state),claimed=claimNextQrPerson(state.roster,{...attendee,included:false},Object.keys(assignments).map(Number)),roster=normalizeRoster(claimed.roster);
  const unchanged=state.roster.filter(a=>a.id!==claimed.attendee.id);
  if(JSON.stringify(roster.filter(a=>unchanged.some(old=>old.id===a.id)))!==JSON.stringify(unchanged))throw Error('Adding a nonparticipant cannot change existing roster settings.');
- if(JSON.stringify(participants(roster).map(a=>a.id))!==JSON.stringify(participants(state.roster).map(a=>a.id)))throw Error('Adding a nonparticipant cannot change the match pool.');
  if(state.schedule)validateSchedule(roster,state.schedule);
  return {...state,roster};
 }
