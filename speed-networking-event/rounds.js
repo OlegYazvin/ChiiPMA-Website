@@ -47,7 +47,7 @@ function playAlarm(){
  }).catch(audioUnavailable);
 }
 function syncTimer(next){
- const key=next.currentRound>0?`${next.runId}:${next.currentRound}`:null;
+ const key=next.currentRound>0?`${next.attemptId||next.runId}:${next.currentRound}`:null;
  if(key!==timerRound){stopAlarm();alarmPlayed=false;alarmSounded=false;alarmArmed=false;timerRound=key;}
  if(Number.isFinite(next.serverNow))serverClockOffset=next.serverNow-Date.now();
  const timer=next.timer;timerRemaining=timer?.remainingMs??ROUND_DURATION;timerDeadline=timer?.deadlineAt??null;
@@ -87,7 +87,7 @@ async function poll(){
  try{
   const r=await fetch(FEED,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(10000)});if(!r.ok)throw Error('Display unavailable');const next=await r.json();
   if(!Array.isArray(next.rounds)||!['waiting','live','break','finished'].includes(next.status))throw Error('Invalid display');
-  const changed=next.version!==lastVersion;if(!state||next.currentRound!==state.currentRound)selected=next.currentRound;syncTimer(next);state=next;lastVersion=next.version;if(changed)render();else renderTimer();
+  const changed=next.version!==lastVersion;if(!state||next.currentRound!==state.currentRound||next.attemptId!==state.attemptId)selected=next.currentRound;syncTimer(next);state=next;lastVersion=next.version;if(changed)render();else renderTimer();
   $('#connection').textContent='Updates automatically.';$('#connection').classList.remove('error');
  }catch{ $('#connection').textContent=state?'Reconnecting… Showing the last confirmed round.':'Connecting to the host… Retrying automatically.';$('#connection').classList.add('error');}
  setTimeout(poll,3000);

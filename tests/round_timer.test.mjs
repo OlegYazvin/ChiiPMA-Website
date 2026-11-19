@@ -94,3 +94,8 @@ test('all 42 attendees are shown across 21 stations and the last station remains
  assert.ok(page.get('#pair-grid').innerHTML.includes('Synthetic Attendee 41'));
  assert.ok(page.get('#pair-grid').innerHTML.includes('Synthetic Attendee 42'));
 });
+test('a rapid real-event restart resets the alarm even if the display misses the waiting screen',async()=>{
+ const page=await display(fixture({isTest:false,attemptId:'real-first'}));await page.startRemote();page.advance(300000);await page.settle();assert.equal(page.audio.starts,1);
+ await page.poll(fixture({isTest:false,attemptId:'real-second',version:3,timer:{status:'idle',remainingMs:300000,deadlineAt:null,version:0}}));
+ assert.equal(page.get('#timer-value').textContent,'05:00');await page.startRemote();page.advance(300000);await page.settle();assert.equal(page.audio.starts,2);
+});
