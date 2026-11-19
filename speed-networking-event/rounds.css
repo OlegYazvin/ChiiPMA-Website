@@ -21,8 +21,8 @@ h1 { margin: 0; font-size: 20px; font-weight: 700; }
 #countdown { position: sticky; top: 20px; display: grid; gap: 16px; padding: 20px; border: 1px solid #b7d5ed; border-top: 4px solid #0b74c9; border-radius: 7px; background: #fff; text-align: center; }
 #timer-label { font-size: 12px; color: #475569; }
 #timer-value { font-size: 52px; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
-#start-timer { padding: 10px 12px; border: 0; border-radius: 5px; background: #0b74c9; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
-#start-timer:disabled { background: #eaf1f6; color: #537087; cursor: default; }
+#enable-timer-sound { padding: 10px 12px; border: 0; border-radius: 5px; background: #0b74c9; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
+#enable-timer-sound:disabled { background: #eaf1f6; color: #537087; cursor: default; }
 #timer-audio-status { grid-column: 1 / -1; margin: 0; color: #9b4513; font-size: 12px; line-height: 1.5; }
 #timer-control-status { grid-column: 1 / -1; margin: 0; color: #9b4513; font-size: 12px; line-height: 1.5; }
 #countdown.complete { border-color: #d4ab61; background: #fff3d6; color: #68430d; }
@@ -72,7 +72,7 @@ body.presentation td, body.presentation tbody th { padding-top: 6px; padding-bot
   #countdown { padding: 32px 24px; gap: 24px; }
   #timer-label { font-size: 18px; }
   #timer-value { font-size: clamp(88px, 8vw, 144px); font-weight: 800; }
-  #start-timer { padding: 16px 20px; font-size: 20px; }
+  #enable-timer-sound { padding: 16px 20px; font-size: 20px; }
   .section-title { flex-wrap: wrap; }
 }
 @media(max-width: 900px) {
@@ -80,7 +80,7 @@ body.presentation td, body.presentation tbody th { padding-top: 6px; padding-bot
   #countdown { position: static; grid-template-columns: 1fr auto; align-items: center; gap: 8px 20px; padding: 16px; text-align: left; }
   #timer-label, #timer-value { grid-column: 1; }
   #timer-value { font-size: 42px; }
-  #start-timer { grid-column: 2; grid-row: 1 / 3; }
+  #enable-timer-sound { grid-column: 2; grid-row: 1 / 3; }
 }
 @media(max-width: 650px) {
   header, main, footer { padding-left: 16px; padding-right: 16px; }
