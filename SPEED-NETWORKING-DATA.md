@@ -182,9 +182,12 @@ page through all twelve rounds. Completion requires the full five-minute timer,
 excluding host pauses. The private organizer starts and resumes the shared timer
 and links directly to the ChiPMA live display. Timer authorization stays on the
 admin server; the public display has no timer-start control. Refreshing preserves
-the remaining time. On the presentation display, enable sound once to hear the
-approved chime at each round's expiry. Enabling sound never starts or restarts
-the countdown; after a display refresh, enable sound again if wanted.
+the remaining time. The event display preloads and automatically plays the
+approved chime at each round's expiry, with no sound toggle. Mute the device
+to silence it. When browser autoplay policy requires user activation, a normal
+click, tap, or keypress anywhere on the display unlocks audio for later rounds.
+A visible message explains an observed autoplay block or audio-loading failure.
+Audio initialization never starts or restarts the countdown.
 Both the organizer and the results service reject early advance or finish.
 
 Real-event links and contact profiles are separate from rehearsal links and
