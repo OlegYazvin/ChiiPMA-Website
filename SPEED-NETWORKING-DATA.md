@@ -152,6 +152,59 @@ Released assignments and question text are locked; a test reset unlocks them.
 Question changes preserve attendee selections and generated matches. The public
 viewer shows an assigned question only after the host releases its round.
 
+## Personal participant pages
+
+The shared page at `/speed-networking-event/participant/#<private-code>` contains
+no participant records or real access codes in its source. The private organizer's
+Personal pages tab provisions links for the actual scheduled participant set,
+prints private QR cards, and exports named conversation ratings. Codes and QR
+images are generated at runtime; do not save their output in tracked files.
+Participants can bookmark or copy their full link, including its fragment.
+
+The results service stores protected link records, participant-entered contacts,
+final conversation responses, and server-authoritative round timers in D1. Link
+records contain verification hashes and nonces; the server derives printable
+links with its runtime `PARTICIPANT_LINK_SECRET`. Keep that signing secret stable
+for the event. The management write credential is separate and never reaches a
+participant or the public display. Professional research remains local and is
+not imported into contact forms; each contact form starts blank.
+
+Participants explicitly save contact details and submit each completed round
+separately. Ratings use frown, neutral, or smile; stay-in-touch is a separate
+Yes/No choice. Both choices are required, with no preselection or autosubmission.
+Submissions are final and retry-safe. Contact details appear on both personal
+pages only after both partners submit Yes. Participants never receive their
+partner's rating or a one-sided stay-in-touch decision. Named ratings are
+available only through the owner-private organizer. There are no email sends.
+
+Only completed rounds are returned by the participant API, accumulating on one
+page through all twelve rounds. Completion requires the full five-minute timer,
+excluding host pauses. The private organizer opens a host-authorized display on
+ChiPMA.org; ordinary public display visitors cannot start the shared timer.
+Refreshing preserves its remaining time. A refreshed host display can enable
+sound without restarting the timer. The approved chime sounds once at expiry.
+Both the organizer and the results service reject early advance or finish.
+
+Real-event links and contact profiles are separate from rehearsal links and
+responses. Reset test closes the old rehearsal links and clears its contacts
+and responses while preserving real profiles. Personal pages remain available
+after the event until the owner closes access; closing access preserves the
+organizer's ratings and can be reversed from the admin app.
+
+The public `/api/state` response includes only released assignments, questions,
+and shared timer metadata. Contact/profile and response endpoints require the
+participant's bearer code and return only that participant's permitted data.
+They use no-store responses and trusted-origin CORS; the participant page disables
+referrers. QR generation runs locally in the private admin browser using a bundled
+MIT-licensed encoder and does not send private links to a third-party QR service.
+
+New behavior is covered by synthetic backend, participant-page, and shared-timer
+tests. The local `scripts/check-personal.mjs` in the organizer checkout exercises
+both local services using isolated D1 state, including strict timer enforcement,
+mutual sharing, immutable submissions, test isolation, and closing/reopening
+access. Its clock shortcut operates only on the isolated local database; there
+is no production timer shortcut.
+
 Publishing references: [Jekyll directory structure](https://jekyllrb.com/docs/structure/)
 and [Pages artifact action v4](https://github.com/actions/upload-pages-artifact/blob/v4/action.yml).
 
