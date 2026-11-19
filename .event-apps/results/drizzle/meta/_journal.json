@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1794799730683,
+      "tag": "0000_groovy_piledriver",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1795043814962,
+      "tag": "0001_marvelous_black_queen",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1795066964020,
+      "tag": "0002_square_ego",
+      "breakpoints": true
+    }
+  ]
+}
