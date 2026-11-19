@@ -1,0 +1,697 @@
+{
+  "checked_on": "2026-11-19",
+  "source": "https://www.meetup.com/chipma/events/?type=past",
+  "api": "https://api.meetup.com/gql-ext",
+  "query": "groupByUrlname(urlname: \"chipma\") { events(first: 150, sort: DESC, filter: {status: [PAST]}) { totalCount pageInfo { hasNextPage } edges { node { id dateTime eventUrl rsvps(first: 0, filter: {rsvpStatus: [YES]}) { totalCount } } } } }",
+  "past_events": 114,
+  "attendee_rsvps": 4574,
+  "first_meetup": "2010-04-15",
+  "has_next_page": false,
+  "note": "Sum of YES RSVPs on past Meetup listings; repeat participants count once per event. Not unique attendees or verified check-ins. Excludes upcoming events.",
+  "events": [
+    {
+      "id": "13070393",
+      "date": "2010-04-15",
+      "url": "https://www.meetup.com/chipma/events/13070393/",
+      "attendee_rsvps": 14
+    },
+    {
+      "id": "13202101",
+      "date": "2010-05-13",
+      "url": "https://www.meetup.com/chipma/events/13202101/",
+      "attendee_rsvps": 15
+    },
+    {
+      "id": "13202116",
+      "date": "2010-06-10",
+      "url": "https://www.meetup.com/chipma/events/13202116/",
+      "attendee_rsvps": 15
+    },
+    {
+      "id": "13202129",
+      "date": "2010-07-08",
+      "url": "https://www.meetup.com/chipma/events/13202129/",
+      "attendee_rsvps": 11
+    },
+    {
+      "id": "14091040",
+      "date": "2010-08-12",
+      "url": "https://www.meetup.com/chipma/events/14091040/",
+      "attendee_rsvps": 22
+    },
+    {
+      "id": "14091337",
+      "date": "2010-09-09",
+      "url": "https://www.meetup.com/chipma/events/14091337/",
+      "attendee_rsvps": 30
+    },
+    {
+      "id": "14181642",
+      "date": "2010-10-14",
+      "url": "https://www.meetup.com/chipma/events/14181642/",
+      "attendee_rsvps": 36
+    },
+    {
+      "id": "14181662",
+      "date": "2010-11-11",
+      "url": "https://www.meetup.com/chipma/events/14181662/",
+      "attendee_rsvps": 36
+    },
+    {
+      "id": "15186717",
+      "date": "2010-12-09",
+      "url": "https://www.meetup.com/chipma/events/15186717/",
+      "attendee_rsvps": 54
+    },
+    {
+      "id": "15611978",
+      "date": "2011-01-13",
+      "url": "https://www.meetup.com/chipma/events/15611978/",
+      "attendee_rsvps": 58
+    },
+    {
+      "id": "15611998",
+      "date": "2011-02-10",
+      "url": "https://www.meetup.com/chipma/events/15611998/",
+      "attendee_rsvps": 47
+    },
+    {
+      "id": "15612007",
+      "date": "2011-03-10",
+      "url": "https://www.meetup.com/chipma/events/15612007/",
+      "attendee_rsvps": 16
+    },
+    {
+      "id": "15612025",
+      "date": "2011-04-14",
+      "url": "https://www.meetup.com/chipma/events/15612025/",
+      "attendee_rsvps": 29
+    },
+    {
+      "id": "17458734",
+      "date": "2011-05-12",
+      "url": "https://www.meetup.com/chipma/events/17458734/",
+      "attendee_rsvps": 19
+    },
+    {
+      "id": "20876691",
+      "date": "2011-06-09",
+      "url": "https://www.meetup.com/chipma/events/20876691/",
+      "attendee_rsvps": 27
+    },
+    {
+      "id": "22028531",
+      "date": "2011-07-07",
+      "url": "https://www.meetup.com/chipma/events/22028531/",
+      "attendee_rsvps": 18
+    },
+    {
+      "id": "22028731",
+      "date": "2011-08-11",
+      "url": "https://www.meetup.com/chipma/events/22028731/",
+      "attendee_rsvps": 18
+    },
+    {
+      "id": "31062301",
+      "date": "2011-09-08",
+      "url": "https://www.meetup.com/chipma/events/31062301/",
+      "attendee_rsvps": 31
+    },
+    {
+      "id": "31062351",
+      "date": "2011-10-13",
+      "url": "https://www.meetup.com/chipma/events/31062351/",
+      "attendee_rsvps": 60
+    },
+    {
+      "id": "31062411",
+      "date": "2011-11-15",
+      "url": "https://www.meetup.com/chipma/events/31062411/",
+      "attendee_rsvps": 94
+    },
+    {
+      "id": "42185732",
+      "date": "2011-12-08",
+      "url": "https://www.meetup.com/chipma/events/42185732/",
+      "attendee_rsvps": 41
+    },
+    {
+      "id": "40571912",
+      "date": "2012-01-12",
+      "url": "https://www.meetup.com/chipma/events/40571912/",
+      "attendee_rsvps": 41
+    },
+    {
+      "id": "46784822",
+      "date": "2012-02-09",
+      "url": "https://www.meetup.com/chipma/events/46784822/",
+      "attendee_rsvps": 28
+    },
+    {
+      "id": "46791162",
+      "date": "2012-03-13",
+      "url": "https://www.meetup.com/chipma/events/46791162/",
+      "attendee_rsvps": 46
+    },
+    {
+      "id": "58220652",
+      "date": "2012-04-12",
+      "url": "https://www.meetup.com/chipma/events/58220652/",
+      "attendee_rsvps": 25
+    },
+    {
+      "id": "62020362",
+      "date": "2012-05-15",
+      "url": "https://www.meetup.com/chipma/events/62020362/",
+      "attendee_rsvps": 40
+    },
+    {
+      "id": "63246862",
+      "date": "2012-06-07",
+      "url": "https://www.meetup.com/chipma/events/63246862/",
+      "attendee_rsvps": 23
+    },
+    {
+      "id": "71144202",
+      "date": "2012-07-12",
+      "url": "https://www.meetup.com/chipma/events/71144202/",
+      "attendee_rsvps": 26
+    },
+    {
+      "id": "74657722",
+      "date": "2012-07-25",
+      "url": "https://www.meetup.com/chipma/events/74657722/",
+      "attendee_rsvps": 1
+    },
+    {
+      "id": "73105242",
+      "date": "2012-08-07",
+      "url": "https://www.meetup.com/chipma/events/73105242/",
+      "attendee_rsvps": 10
+    },
+    {
+      "id": "71240732",
+      "date": "2012-08-09",
+      "url": "https://www.meetup.com/chipma/events/71240732/",
+      "attendee_rsvps": 32
+    },
+    {
+      "id": "63180992",
+      "date": "2012-09-13",
+      "url": "https://www.meetup.com/chipma/events/63180992/",
+      "attendee_rsvps": 21
+    },
+    {
+      "id": "83948832",
+      "date": "2012-10-10",
+      "url": "https://www.meetup.com/chipma/events/83948832/",
+      "attendee_rsvps": 24
+    },
+    {
+      "id": "88174892",
+      "date": "2012-11-08",
+      "url": "https://www.meetup.com/chipma/events/88174892/",
+      "attendee_rsvps": 31
+    },
+    {
+      "id": "92346762",
+      "date": "2012-12-13",
+      "url": "https://www.meetup.com/chipma/events/92346762/",
+      "attendee_rsvps": 18
+    },
+    {
+      "id": "88175662",
+      "date": "2013-01-10",
+      "url": "https://www.meetup.com/chipma/events/88175662/",
+      "attendee_rsvps": 21
+    },
+    {
+      "id": "88176802",
+      "date": "2013-02-13",
+      "url": "https://www.meetup.com/chipma/events/88176802/",
+      "attendee_rsvps": 26
+    },
+    {
+      "id": "107663292",
+      "date": "2013-03-14",
+      "url": "https://www.meetup.com/chipma/events/107663292/",
+      "attendee_rsvps": 27
+    },
+    {
+      "id": "100607872",
+      "date": "2013-04-11",
+      "url": "https://www.meetup.com/chipma/events/100607872/",
+      "attendee_rsvps": 15
+    },
+    {
+      "id": "111619132",
+      "date": "2013-05-09",
+      "url": "https://www.meetup.com/chipma/events/111619132/",
+      "attendee_rsvps": 25
+    },
+    {
+      "id": "111620702",
+      "date": "2013-06-06",
+      "url": "https://www.meetup.com/chipma/events/111620702/",
+      "attendee_rsvps": 20
+    },
+    {
+      "id": "111623822",
+      "date": "2013-07-11",
+      "url": "https://www.meetup.com/chipma/events/111623822/",
+      "attendee_rsvps": 24
+    },
+    {
+      "id": "127618022",
+      "date": "2013-07-25",
+      "url": "https://www.meetup.com/chipma/events/127618022/",
+      "attendee_rsvps": 1
+    },
+    {
+      "id": "115286662",
+      "date": "2013-08-08",
+      "url": "https://www.meetup.com/chipma/events/115286662/",
+      "attendee_rsvps": 57
+    },
+    {
+      "id": "129546532",
+      "date": "2013-09-12",
+      "url": "https://www.meetup.com/chipma/events/129546532/",
+      "attendee_rsvps": 23
+    },
+    {
+      "id": "142371132",
+      "date": "2013-10-17",
+      "url": "https://www.meetup.com/chipma/events/142371132/",
+      "attendee_rsvps": 8
+    },
+    {
+      "id": "143240962",
+      "date": "2013-10-24",
+      "url": "https://www.meetup.com/chipma/events/143240962/",
+      "attendee_rsvps": 33
+    },
+    {
+      "id": "148697322",
+      "date": "2013-11-07",
+      "url": "https://www.meetup.com/chipma/events/148697322/",
+      "attendee_rsvps": 16
+    },
+    {
+      "id": "147770432",
+      "date": "2013-11-14",
+      "url": "https://www.meetup.com/chipma/events/147770432/",
+      "attendee_rsvps": 19
+    },
+    {
+      "id": "147770942",
+      "date": "2014-01-09",
+      "url": "https://www.meetup.com/chipma/events/147770942/",
+      "attendee_rsvps": 49
+    },
+    {
+      "id": "149415592",
+      "date": "2014-02-13",
+      "url": "https://www.meetup.com/chipma/events/149415592/",
+      "attendee_rsvps": 35
+    },
+    {
+      "id": "149414202",
+      "date": "2014-03-13",
+      "url": "https://www.meetup.com/chipma/events/149414202/",
+      "attendee_rsvps": 23
+    },
+    {
+      "id": "172541842",
+      "date": "2014-04-05",
+      "url": "https://www.meetup.com/chipma/events/172541842/",
+      "attendee_rsvps": 1
+    },
+    {
+      "id": "170817992",
+      "date": "2014-05-08",
+      "url": "https://www.meetup.com/chipma/events/170817992/",
+      "attendee_rsvps": 18
+    },
+    {
+      "id": "170818142",
+      "date": "2014-07-10",
+      "url": "https://www.meetup.com/chipma/events/170818142/",
+      "attendee_rsvps": 27
+    },
+    {
+      "id": "170818182",
+      "date": "2014-09-11",
+      "url": "https://www.meetup.com/chipma/events/170818182/",
+      "attendee_rsvps": 25
+    },
+    {
+      "id": "209907122",
+      "date": "2014-10-21",
+      "url": "https://www.meetup.com/chipma/events/209907122/",
+      "attendee_rsvps": 29
+    },
+    {
+      "id": "170818312",
+      "date": "2014-11-13",
+      "url": "https://www.meetup.com/chipma/events/170818312/",
+      "attendee_rsvps": 25
+    },
+    {
+      "id": "209604312",
+      "date": "2015-01-15",
+      "url": "https://www.meetup.com/chipma/events/209604312/",
+      "attendee_rsvps": 32
+    },
+    {
+      "id": "220141351",
+      "date": "2015-03-12",
+      "url": "https://www.meetup.com/chipma/events/220141351/",
+      "attendee_rsvps": 19
+    },
+    {
+      "id": "221975648",
+      "date": "2015-05-07",
+      "url": "https://www.meetup.com/chipma/events/221975648/",
+      "attendee_rsvps": 8
+    },
+    {
+      "id": "221867397",
+      "date": "2015-05-14",
+      "url": "https://www.meetup.com/chipma/events/221867397/",
+      "attendee_rsvps": 31
+    },
+    {
+      "id": "222681587",
+      "date": "2015-06-04",
+      "url": "https://www.meetup.com/chipma/events/222681587/",
+      "attendee_rsvps": 9
+    },
+    {
+      "id": "222339803",
+      "date": "2015-07-14",
+      "url": "https://www.meetup.com/chipma/events/222339803/",
+      "attendee_rsvps": 52
+    },
+    {
+      "id": "224296851",
+      "date": "2015-09-10",
+      "url": "https://www.meetup.com/chipma/events/224296851/",
+      "attendee_rsvps": 49
+    },
+    {
+      "id": "225474820",
+      "date": "2015-11-11",
+      "url": "https://www.meetup.com/chipma/events/225474820/",
+      "attendee_rsvps": 89
+    },
+    {
+      "id": "223476604",
+      "date": "2016-01-14",
+      "url": "https://www.meetup.com/chipma/events/223476604/",
+      "attendee_rsvps": 71
+    },
+    {
+      "id": "223476888",
+      "date": "2016-03-10",
+      "url": "https://www.meetup.com/chipma/events/223476888/",
+      "attendee_rsvps": 41
+    },
+    {
+      "id": "223477134",
+      "date": "2016-05-12",
+      "url": "https://www.meetup.com/chipma/events/223477134/",
+      "attendee_rsvps": 84
+    },
+    {
+      "id": "232585587",
+      "date": "2016-08-11",
+      "url": "https://www.meetup.com/chipma/events/232585587/",
+      "attendee_rsvps": 1
+    },
+    {
+      "id": "232073538",
+      "date": "2016-09-15",
+      "url": "https://www.meetup.com/chipma/events/232073538/",
+      "attendee_rsvps": 74
+    },
+    {
+      "id": "235352375",
+      "date": "2016-11-10",
+      "url": "https://www.meetup.com/chipma/events/235352375/",
+      "attendee_rsvps": 2
+    },
+    {
+      "id": "235118803",
+      "date": "2016-11-17",
+      "url": "https://www.meetup.com/chipma/events/235118803/",
+      "attendee_rsvps": 50
+    },
+    {
+      "id": "236120338",
+      "date": "2017-01-12",
+      "url": "https://www.meetup.com/chipma/events/236120338/",
+      "attendee_rsvps": 71
+    },
+    {
+      "id": "237602309",
+      "date": "2017-02-28",
+      "url": "https://www.meetup.com/chipma/events/237602309/",
+      "attendee_rsvps": 71
+    },
+    {
+      "id": "237533748",
+      "date": "2017-03-09",
+      "url": "https://www.meetup.com/chipma/events/237533748/",
+      "attendee_rsvps": 70
+    },
+    {
+      "id": "239461690",
+      "date": "2017-05-16",
+      "url": "https://www.meetup.com/chipma/events/239461690/",
+      "attendee_rsvps": 50
+    },
+    {
+      "id": "240092825",
+      "date": "2017-06-15",
+      "url": "https://www.meetup.com/chipma/events/240092825/",
+      "attendee_rsvps": 62
+    },
+    {
+      "id": "241867319",
+      "date": "2017-08-03",
+      "url": "https://www.meetup.com/chipma/events/241867319/",
+      "attendee_rsvps": 82
+    },
+    {
+      "id": "243005182",
+      "date": "2017-09-13",
+      "url": "https://www.meetup.com/chipma/events/243005182/",
+      "attendee_rsvps": 52
+    },
+    {
+      "id": "244207464",
+      "date": "2017-11-09",
+      "url": "https://www.meetup.com/chipma/events/244207464/",
+      "attendee_rsvps": 98
+    },
+    {
+      "id": "245419101",
+      "date": "2018-01-11",
+      "url": "https://www.meetup.com/chipma/events/245419101/",
+      "attendee_rsvps": 54
+    },
+    {
+      "id": "246506626",
+      "date": "2018-02-08",
+      "url": "https://www.meetup.com/chipma/events/246506626/",
+      "attendee_rsvps": 64
+    },
+    {
+      "id": "248029299",
+      "date": "2018-03-08",
+      "url": "https://www.meetup.com/chipma/events/248029299/",
+      "attendee_rsvps": 158
+    },
+    {
+      "id": "248997829",
+      "date": "2018-04-05",
+      "url": "https://www.meetup.com/chipma/events/248997829/",
+      "attendee_rsvps": 44
+    },
+    {
+      "id": "250567662",
+      "date": "2018-05-24",
+      "url": "https://www.meetup.com/chipma/events/250567662/",
+      "attendee_rsvps": 94
+    },
+    {
+      "id": "251311729",
+      "date": "2018-06-27",
+      "url": "https://www.meetup.com/chipma/events/251311729/",
+      "attendee_rsvps": 67
+    },
+    {
+      "id": "252890500",
+      "date": "2018-08-09",
+      "url": "https://www.meetup.com/chipma/events/252890500/",
+      "attendee_rsvps": 63
+    },
+    {
+      "id": "254450620",
+      "date": "2018-09-27",
+      "url": "https://www.meetup.com/chipma/events/254450620/",
+      "attendee_rsvps": 65
+    },
+    {
+      "id": "254964473",
+      "date": "2018-10-18",
+      "url": "https://www.meetup.com/chipma/events/254964473/",
+      "attendee_rsvps": 49
+    },
+    {
+      "id": "255614055",
+      "date": "2018-11-15",
+      "url": "https://www.meetup.com/chipma/events/255614055/",
+      "attendee_rsvps": 77
+    },
+    {
+      "id": "257015550",
+      "date": "2019-01-24",
+      "url": "https://www.meetup.com/chipma/events/257015550/",
+      "attendee_rsvps": 70
+    },
+    {
+      "id": "258532129",
+      "date": "2019-02-28",
+      "url": "https://www.meetup.com/chipma/events/258532129/",
+      "attendee_rsvps": 40
+    },
+    {
+      "id": "258931039",
+      "date": "2019-03-14",
+      "url": "https://www.meetup.com/chipma/events/258931039/",
+      "attendee_rsvps": 40
+    },
+    {
+      "id": "259493636",
+      "date": "2019-04-18",
+      "url": "https://www.meetup.com/chipma/events/259493636/",
+      "attendee_rsvps": 87
+    },
+    {
+      "id": "261191066",
+      "date": "2019-06-06",
+      "url": "https://www.meetup.com/chipma/events/261191066/",
+      "attendee_rsvps": 63
+    },
+    {
+      "id": "262808805",
+      "date": "2019-07-25",
+      "url": "https://www.meetup.com/chipma/events/262808805/",
+      "attendee_rsvps": 68
+    },
+    {
+      "id": "263850230",
+      "date": "2019-08-22",
+      "url": "https://www.meetup.com/chipma/events/263850230/",
+      "attendee_rsvps": 42
+    },
+    {
+      "id": "263483208",
+      "date": "2019-10-03",
+      "url": "https://www.meetup.com/chipma/events/263483208/",
+      "attendee_rsvps": 63
+    },
+    {
+      "id": "266463812",
+      "date": "2019-11-21",
+      "url": "https://www.meetup.com/chipma/events/266463812/",
+      "attendee_rsvps": 27
+    },
+    {
+      "id": "268122648",
+      "date": "2020-02-26",
+      "url": "https://www.meetup.com/chipma/events/268122648/",
+      "attendee_rsvps": 42
+    },
+    {
+      "id": "271049946",
+      "date": "2020-07-23",
+      "url": "https://www.meetup.com/chipma/events/271049946/",
+      "attendee_rsvps": 48
+    },
+    {
+      "id": "276135907",
+      "date": "2021-02-25",
+      "url": "https://www.meetup.com/chipma/events/276135907/",
+      "attendee_rsvps": 80
+    },
+    {
+      "id": "288977237",
+      "date": "2022-10-27",
+      "url": "https://www.meetup.com/chipma/events/288977237/",
+      "attendee_rsvps": 44
+    },
+    {
+      "id": "293199361",
+      "date": "2023-05-18",
+      "url": "https://www.meetup.com/chipma/events/293199361/",
+      "attendee_rsvps": 58
+    },
+    {
+      "id": "298754427",
+      "date": "2024-02-08",
+      "url": "https://www.meetup.com/chipma/events/298754427/",
+      "attendee_rsvps": 23
+    },
+    {
+      "id": "299422191",
+      "date": "2024-03-12",
+      "url": "https://www.meetup.com/chipma/events/299422191/",
+      "attendee_rsvps": 28
+    },
+    {
+      "id": "305182993",
+      "date": "2025-02-13",
+      "url": "https://www.meetup.com/chipma/events/305182993/",
+      "attendee_rsvps": 45
+    },
+    {
+      "id": "306946910",
+      "date": "2025-04-24",
+      "url": "https://www.meetup.com/chipma/events/306946910/",
+      "attendee_rsvps": 36
+    },
+    {
+      "id": "308318859",
+      "date": "2025-06-25",
+      "url": "https://www.meetup.com/chipma/events/308318859/",
+      "attendee_rsvps": 46
+    },
+    {
+      "id": "310013112",
+      "date": "2025-08-12",
+      "url": "https://www.meetup.com/chipma/events/310013112/",
+      "attendee_rsvps": 37
+    },
+    {
+      "id": "311349459",
+      "date": "2025-10-29",
+      "url": "https://www.meetup.com/chipma/events/311349459/",
+      "attendee_rsvps": 19
+    },
+    {
+      "id": "314267569",
+      "date": "2026-05-28",
+      "url": "https://www.meetup.com/chipma/events/314267569/",
+      "attendee_rsvps": 36
+    },
+    {
+      "id": "314887410",
+      "date": "2026-06-25",
+      "url": "https://www.meetup.com/chipma/events/314887410/",
+      "attendee_rsvps": 25
+    }
+  ]
+}

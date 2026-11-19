@@ -62,6 +62,12 @@ the homepage and `www` redirect after the rollback deployment.
 
 ## Updating the Featured Event
 
+The reusable event introduction is at `/intro/`. It is a single informational
+slide with the community purpose, dated Meetup statistics, volunteer board,
+website, and team contact. See `intro/README.md` for sources and refresh
+instructions. Include this directory and the updated portrait asset in the
+next GitHub Pages release.
+
 The homepage event is maintained manually in `index.html`, between the
 `FEATURED EVENT` and `END FEATURED EVENT` comments. There is no calendar embed,
 JavaScript dependency, or separate event page. The native details panel starts

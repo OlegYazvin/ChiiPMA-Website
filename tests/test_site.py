@@ -82,7 +82,7 @@ class ProductionReadinessTests(unittest.TestCase):
         namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
         self.assertEqual(
             [node.text for node in sitemap.findall("./s:url/s:loc", namespace)],
-            ["https://chipma.org/", "https://chipma.org/blog/"],
+            ["https://chipma.org/", "https://chipma.org/blog/", "https://chipma.org/intro/"],
         )
 
     def test_favicon_uses_approved_star_across_pages(self):
