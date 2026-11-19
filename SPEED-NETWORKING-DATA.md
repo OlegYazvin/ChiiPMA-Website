@@ -179,10 +179,12 @@ available only through the owner-private organizer. There are no email sends.
 
 Only completed rounds are returned by the participant API, accumulating on one
 page through all twelve rounds. Completion requires the full five-minute timer,
-excluding host pauses. The private organizer opens a host-authorized display on
-ChiPMA.org; ordinary public display visitors cannot start the shared timer.
-Refreshing preserves its remaining time. A refreshed host display can enable
-sound without restarting the timer. The approved chime sounds once at expiry.
+excluding host pauses. The private organizer starts and resumes the shared timer
+and links directly to the ChiPMA live display. Timer authorization stays on the
+admin server; the public display has no timer-start control. Refreshing preserves
+the remaining time. On the presentation display, enable sound once to hear the
+approved chime at each round's expiry. Enabling sound never starts or restarts
+the countdown; after a display refresh, enable sound again if wanted.
 Both the organizer and the results service reject early advance or finish.
 
 Real-event links and contact profiles are separate from rehearsal links and
