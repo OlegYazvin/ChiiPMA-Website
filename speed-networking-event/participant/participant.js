@@ -19,6 +19,9 @@ function renderRounds(force=false){
 }
 function render(){
  if(!state||closed)return;$('#personal-content').hidden=false;$('#participant-name').textContent=state.name;$('#test-banner').hidden=!state.isTest;
+ $('#reserved-card-label').hidden=!state.qrSlot;$('#reserved-card-label').textContent=state.qrSlot?`QR card: Person ${state.qrSlot}`:'';
+ $('#reservation-message').hidden=!state.reservationPending;$('#contact-section').hidden=!!state.reservationPending;$('#rounds-section').hidden=!!state.reservationPending;
+ $('#participant-intro').textContent=state.reservationPending?'Keep your full personal link. This page updates automatically when your organizer assigns the card.':'Save your contact details. Rate completed conversations whenever you are ready, during or after the event.';
  if(!profileDirty&&!profileBusy){for(const [key,value] of Object.entries(state.profile.contacts))$('#contact-form').elements.namedItem(key).value=value;profileVersion=state.profile.version;$('#contact-save-status').textContent=profileVersion?'Saved':'No contact details saved yet';}
  $('#save-contact').disabled=profileBusy;renderRounds();
 }
