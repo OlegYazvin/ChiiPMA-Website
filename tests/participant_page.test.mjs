@@ -41,3 +41,8 @@ test('Copy my link includes the private fragment for bookmarking and reuse',asyn
 test('opening a different personal link reloads the app instead of retaining the previous identity',async()=>{
  const p=await page();p.switchLink();assert.equal(p.reloaded,true);
 });
+
+test('a reserved card waits safely, then shows the assigned profile automatically',async()=>{
+ const p=await page();p.server.name='Person 1';p.server.qrSlot=1;p.server.reservationPending=true;p.server.rounds=[];await p.poll();assert.equal(p.get('#contact-section').hidden,true);assert.equal(p.get('#rounds-section').hidden,true);assert.equal(p.get('#reservation-message').hidden,false);assert.equal(p.requests.length,0);
+ p.server.name='New Synthetic Attendee';p.server.reservationPending=false;await p.poll();assert.equal(p.get('#participant-name').textContent,'New Synthetic Attendee');assert.equal(p.get('#contact-section').hidden,false);assert.equal(p.get('#reservation-message').hidden,true);assert.equal(p.get('#reserved-card-label').textContent,'QR card: Person 1');
+});

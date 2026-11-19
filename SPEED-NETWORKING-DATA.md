@@ -161,6 +161,19 @@ prints private QR cards, and exports named conversation ratings. Codes and QR
 images are generated at runtime; do not save their output in tracked files.
 Participants can bookmark or copy their full link, including its fragment.
 
+Three reserved cards, labeled Person 1–3, have stable private URLs backed by
+protected QR-reservation records. Their unchecked roster rows carry `qrSlot`
+and `qrPending` markers. The next three names entered through Add attendee
+claim those rows in order and keep the printed URLs. New attendees begin
+not participating; selecting participation and regenerating the schedule is
+a separate organizer action. An unassigned card shows a waiting page and
+cannot save contacts or submit ratings. After assignment it becomes that
+attendee's personal page, with the same contact-sharing and rating rules.
+Reserved cards are never automatically reassigned after they are claimed.
+The private Personal pages view lists them separately from scheduled pages
+and offers printing, QR downloads, and the current assigned name. Roster
+version checks prevent stale synchronization from changing a newer assignment.
+
 The results service stores protected link records, participant-entered contacts,
 final conversation responses, and server-authoritative round timers in D1. Link
 records contain verification hashes and nonces; the server derives printable
