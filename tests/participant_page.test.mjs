@@ -46,3 +46,16 @@ test('a reserved card waits safely, then shows the assigned profile automaticall
  const p=await page();p.server.name='Person 1';p.server.qrSlot=1;p.server.reservationPending=true;p.server.rounds=[];await p.poll();assert.equal(p.get('#contact-section').hidden,true);assert.equal(p.get('#rounds-section').hidden,true);assert.equal(p.get('#reservation-message').hidden,false);assert.equal(p.requests.length,0);
  p.server.name='New Synthetic Attendee';p.server.reservationPending=false;await p.poll();assert.equal(p.get('#participant-name').textContent,'New Synthetic Attendee');assert.equal(p.get('#contact-section').hidden,false);assert.equal(p.get('#reservation-message').hidden,true);assert.equal(p.get('#reserved-card-label').textContent,'QR card: Person 1');
 });
+test('restarting clears unsent choices even when the browser misses the waiting screen',async()=>{
+ const p=await page();p.server.attemptId='attempt-one';p.server.eventVersion=1;await p.poll();p.change('rating','smile');p.change('stay','false');
+ p.server.attemptId='attempt-two';p.server.eventVersion=3;await p.poll();
+ assert(!/name="rating"[^>]*checked/.test(p.get('#conversation-cards').innerHTML));
+ await p.submit();assert.equal(p.requests.length,0);
+ p.change('rating','neutral');p.change('stay','false');await p.submit();assert.equal(p.requests[0].body.attemptId,'attempt-two');
+});
+test('an older response cannot restore a previous event attempt after a restart',async()=>{
+ const p=await page();p.server.attemptId='new-attempt';p.server.eventVersion=5;await p.poll();
+ p.server.attemptId='old-attempt';p.server.eventVersion=3;p.server.rounds[0].partner='Old Synthetic Partner';await p.poll();
+ assert(!p.get('#conversation-cards').innerHTML.includes('Old Synthetic Partner'));
+ p.change('rating','frown');p.change('stay','false');await p.submit();assert.equal(p.requests[0].body.attemptId,'new-attempt');
+});
