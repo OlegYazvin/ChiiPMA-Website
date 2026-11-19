@@ -22,12 +22,11 @@ The first available Meetup is April 15, 2010:
 <https://www.meetup.com/chipma/events/13070393/>. This is the first-meetup date,
 not the group's creation date.
 
-The group About page at <https://www.meetup.com/chipma/> lists Oleg Yazvin as
-President, Ivan Alfaro as Treasurer, Rayna Monforti and Omar Bennani as Event
-Planning Leaders, and Peter Caron as Advisor. The November 19 event additionally
-identifies Lavanya Mathur as a board member:
-<https://www.meetup.com/chipma/events/316659297/>. Oleg's presidency and the
-board's volunteer status were also confirmed by the organizer.
+The organizer confirmed the current volunteer board on November 19, 2026:
+Oleg Yazvin is President; Lavanya Mathur, Rayna Monforti, Chad Davis,
+Parul Mahajan, and Ashwin Raman are Board Members. This confirmation supersedes
+the older Meetup board roster and the former Community Facilitators heading.
+The homepage and intro page use the same current board and roles.
 
 Update the numbers, first date, source note, and JSON snapshot together when
 refreshing the history. Keep the count limited to past events; check pagination.
@@ -40,3 +39,11 @@ The shared `assets/facilitators/parul-mahajan.webp` was refreshed November 19,
 Original portrait: <https://static.topmate.io/profile_pic_d620ca46-e63e-4aea-b2f0-0f19fed5cc6b.jpeg>.
 The source has no Open to Work badge. Only resizing and WebP conversion were
 applied. The image is stored locally to avoid relying on a third-party URL.
+
+## Ashwin's portrait
+
+The shared `assets/facilitators/ashwin-raman.webp` was added November 19, 2026
+from the author portrait on Ashwin Raman's public LinkedIn post:
+<https://www.linkedin.com/posts/ashwinraman2_producttank-chicago-with-another-excellent-activity-7469868908183846912-KeJF>.
+The original 400×400 image was resized to 640×640 and converted to WebP.
+No AI editing was applied.

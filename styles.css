@@ -818,6 +818,15 @@ a:focus-visible {
   line-height: 1.2;
 }
 
+/* Public board roles accompany each profile. */
+.board-role {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
 .linkedin-mark {
   display: inline-flex;
   width: 18px;

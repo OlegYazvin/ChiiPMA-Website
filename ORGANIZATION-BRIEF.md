@@ -59,30 +59,33 @@ ChiPMA empowers volunteer organizers to lead with autonomy and a bias toward act
 
 ## Leadership
 
-The Meetup page listed this current board on August 25, 2026:
+The organizer confirmed this current volunteer board on November 19, 2026.
+This roster supersedes the earlier Meetup About page and the former
+Community Facilitators label on the website.
 
 | Name | Role |
 | --- | --- |
 | Oleg Yazvin | President |
-| Ivan Alfaro | Treasurer |
-| Rayna Monforti | Event Planning Leader |
-| Omar Bennani | Event Planning Leader |
-| Peter Caron | Advisor |
+| Lavanya Mathur | Board Member |
+| Rayna Monforti | Board Member |
+| Chad Davis | Board Member |
+| Parul Mahajan | Board Member |
+| Ashwin Raman | Board Member |
 
-## Community Facilitators
-
-ChiPMA calls its event and community volunteers **Community Facilitators**. The initial public roster, confirmed from the supplied LinkedIn profiles on August 25, 2026, is:
+## Board profiles
 
 | Name | Profile |
 | --- | --- |
+| Oleg Yazvin | <https://www.linkedin.com/in/oleg-yazvin/> |
 | Lavanya Mathur | <https://www.linkedin.com/in/lavanyamathur/> |
 | Rayna Monforti | <https://www.linkedin.com/in/raynamonforti/> |
 | Chad Davis | <https://www.linkedin.com/in/cdavispm/> |
-| Ravneet Kaur | <https://www.linkedin.com/in/ravneetkaur2423/> |
 | Parul Mahajan | <https://www.linkedin.com/in/parulmahajan03/> |
-| Oleg Yazvin | <https://www.linkedin.com/in/oleg-yazvin/> |
+| Ashwin Raman | <https://www.linkedin.com/in/ashwinraman2/> |
 
-Their current LinkedIn profile photos are stored locally in `assets/facilitators/` so the website does not rely on expiring LinkedIn image URLs.
+Board portraits are stored locally in `assets/facilitators/` so the website
+does not rely on expiring profile image URLs. The directory name is retained
+for existing asset links; the visible website label is the volunteer board.
 
 ## Partners
 
