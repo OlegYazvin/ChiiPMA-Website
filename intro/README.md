@@ -1,12 +1,15 @@
 # Event introduction
 
 Open `/intro/` for a single informational slide with ChiPMA’s purpose, event
-history, volunteer board, website, and team email. The page uses a white
-background, plain text, and two columns that stack on mobile. All content is
+history, volunteer board, website, and team email. The page uses ChiPMA’s red and blue colors, tinted fact panels, six board
+portraits, and a navy website/contact strip. All six board members appear in one
+row on desktop; the portrait grid and contact details stack on mobile. All content is
 visible without JavaScript. A small Fullscreen button appears in supporting
 browsers; use Escape to exit fullscreen. There is no slideshow or animation.
 
-This is a buildless static page. It uses the existing locally stored site font.
+This is a buildless static page. It uses the existing locally stored site font,
+logo, and board portraits from `assets/facilitators/`. Parul’s image retains its
+cache version so visitors receive her current portrait.
 The homepage featured event and the networking display link to the introduction.
 
 ## Numbers and board
