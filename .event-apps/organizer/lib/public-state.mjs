@@ -3,7 +3,7 @@ export const EVENT_ID="chipma-2026-11-19";
 export function waitingState(){return {eventId:EVENT_ID,version:0,status:"waiting",isTest:false,currentRound:0,totalRounds:12,rounds:[],updatedAt:null};}
 export function sanitizePublicState(data){
   if(!data||data.eventId!==EVENT_ID||!["waiting","live","break","finished"].includes(data.status)||!Number.isInteger(data.currentRound)||data.currentRound<0||data.currentRound>12||!Array.isArray(data.rounds)||data.rounds.length!==data.currentRound)throw Error("Invalid released state.");
-  if(data.status==="waiting"&&data.currentRound!==0||data.status!=="waiting"&&data.currentRound===0||data.status==="finished"&&data.currentRound!==12)throw Error("Invalid event status.");
+  if(data.status==="waiting"&&data.currentRound!==0||data.status!=="waiting"&&data.currentRound===0)throw Error("Invalid event status.");
   if(data.isTest!==undefined&&typeof data.isTest!=="boolean"||data.status==="waiting"&&data.isTest)throw Error("Invalid test mode.");
   const allPairs=new Set();
   const rounds=data.rounds.map((r,i)=>{
@@ -38,6 +38,6 @@ export function validateTransition(previous,next,{resetTest=false,resetReal=fals
   if(next.currentRound<previous.currentRound||next.currentRound>previous.currentRound+1)throw Error("Release one round at a time.");
   if(previous.status==="finished")throw Error("The event is finished.");
   if(JSON.stringify(next.rounds.slice(0,previous.currentRound))!==JSON.stringify(previous.rounds))throw Error("Released matches are immutable.");
-  const allowed=previous.status==="waiting"?next.status==="live"&&next.currentRound===1:next.currentRound===previous.currentRound+1?previous.status==="live"&&next.status==="live":previous.status==="live"?["break","finished"].includes(next.status):previous.status==="break"&&next.status==="live";
+  const allowed=previous.status==="waiting"?next.status==="live"&&next.currentRound===1:next.currentRound===previous.currentRound+1?previous.status==="live"&&next.status==="live":previous.status==="live"?["break","finished"].includes(next.status):previous.status==="break"&&["live","finished"].includes(next.status);
   if(!allowed)throw Error("Invalid host action for the current round.");
 }

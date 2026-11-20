@@ -210,8 +210,10 @@ export class ParticipantService{
  async preparePublish(previous,next,body){
   const oldRun=activeRun(previous),runId=next.status==='waiting'?null:previous.status==='waiting'?(next.isTest?`test-${body.operationId}`:REAL_RUN):oldRun;
   const timer=oldRun?await this.first('SELECT * FROM round_timers WHERE run_id=? AND round=?',oldRun,previous.currentRound):null;
-  if(previous.currentRound>0&&!body.resetTest&&!body.resetReal&&(next.currentRound>previous.currentRound||next.status==='finished')&&!timerView(timer,previous.currentRound,this.now()).complete)fail('The current round must run its full five-minute timer before advancing.',409);
-  if(runId){if(!body.participantRoster)fail('The host must sync the scheduled participants before releasing this round.',409);await this.syncRoster({...next,runId},body.participantRoster,next.isTest?'test':'real',runId,{allowAdditions:previous.currentRound>0&&next.currentRound===previous.currentRound+1&&!body.resetTest&&!body.resetReal});}
+  const finishingCurrent=previous.currentRound>0&&next.status==='finished'&&next.currentRound===previous.currentRound;
+  const allowIncompleteFinish=body.endNow===true&&finishingCurrent;
+  if(previous.currentRound>0&&!body.resetTest&&!body.resetReal&&(next.currentRound>previous.currentRound||next.status==='finished')&&!allowIncompleteFinish&&!timerView(timer,previous.currentRound,this.now()).complete)fail('The current round must run its full five-minute timer before advancing.',409);
+  if(runId&&!finishingCurrent){if(!body.participantRoster)fail('The host must sync the scheduled participants before releasing this round.',409);await this.syncRoster({...next,runId},body.participantRoster,next.isTest?'test':'real',runId,{allowAdditions:previous.currentRound>0&&next.currentRound===previous.currentRound+1&&!body.resetTest&&!body.resetReal});}
   const real=await this.first('SELECT state_json FROM event_runs WHERE id=?',REAL_RUN),realAttemptId=body.resetReal?`real-${body.operationId}`:real?JSON.parse(real.state_json).attemptId||REAL_RUN:REAL_RUN;
   return {runId,oldRun,timer,realAttemptId};
  }

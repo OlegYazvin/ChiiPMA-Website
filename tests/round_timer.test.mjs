@@ -99,3 +99,15 @@ test('a rapid real-event restart resets the alarm even if the display misses the
  await page.poll(fixture({isTest:false,attemptId:'real-second',version:3,timer:{status:'idle',remainingMs:300000,deadlineAt:null,version:0}}));
  assert.equal(page.get('#timer-value').textContent,'05:00');await page.startRemote();page.advance(300000);await page.settle();assert.equal(page.audio.starts,2);
 });
+
+
+test('a finished event reports completed rounds separately from released rounds',async()=>{
+ for(const [completedThroughRound,expected] of [[6,6],[0,0],[undefined,7]]){
+  const first=fixture().rounds[0],rounds=Array.from({length:7},(_,i)=>({...first,number:i+1}));
+  const page=await display(fixture({isTest:false,status:'finished',currentRound:7,completedThroughRound,rounds}));
+  assert.equal(page.get('#countdown').hidden,true);
+  assert.equal(page.get('#round-label').textContent,`Event complete · ${expected} rounds completed`);
+  assert.equal(page.get('#round-counter').textContent,'7 of 12 rounds released');
+  assert.equal(page.audio.starts,0);
+ }
+});

@@ -30,7 +30,11 @@ test('public whitelist strips classifications and all extra supplied fields',()=
 test('public feed enforces sequential release, immutable history, and valid breaks',()=>{
  const first=sanitizePublicState({eventId:'chipma-2026-11-19',status:'live',currentRound:1,rounds:[{number:1,matches:[{names:['A','B']},{names:['C','D']}]}]});
  assert.doesNotThrow(()=>validateTransition(waitingState(),first));assert.doesNotThrow(()=>validateTransition(first,{...first,status:'break'}));assert.doesNotThrow(()=>validateTransition({...first,status:'break'},first));
- assert.throws(()=>validateTransition(first,{...first,currentRound:3}),/one round/);assert.throws(()=>validateTransition(first,{...first,rounds:[]}),/immutable/);assert.throws(()=>sanitizePublicState({...first,status:'finished'}),/status/);
+ assert.throws(()=>validateTransition(first,{...first,currentRound:3}),/one round/);assert.throws(()=>validateTransition(first,{...first,rounds:[]}),/immutable/);
+ const finished=sanitizePublicState({...first,status:'finished'});assert.deepEqual(finished.rounds,first.rounds);
+ assert.doesNotThrow(()=>validateTransition(first,finished));assert.doesNotThrow(()=>validateTransition({...first,status:'break'},finished));
+ assert.throws(()=>sanitizePublicState({...waitingState(),status:'finished'}),/status/);
+ assert.throws(()=>validateTransition(finished,first),/finished/);
 });
 test('test runs reset to an empty waiting display; real events cannot reset',()=>{
  const live=sanitizePublicState({eventId:'chipma-2026-11-19',status:'live',isTest:true,currentRound:1,rounds:[{number:1,matches:[{names:['A','B']}]}]});

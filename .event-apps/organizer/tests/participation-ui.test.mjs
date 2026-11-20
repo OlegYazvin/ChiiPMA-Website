@@ -88,3 +88,43 @@ test('the finished real event keeps Reset real event; rehearsals keep their sepa
  vm.runInContext("state.locked=true;state.live={status:'finished',currentRound:12};render();",ctx);assert.match($('#host-buttons').innerHTML,/data-action="resetReal"/);
  vm.runInContext("state.live.isTest=true;render();",ctx);assert(!$('#host-buttons').innerHTML.includes('resetReal'));assert.match($('#host-buttons').innerHTML,/data-action="resetTest"/);
 });
+
+test('a finished real event displays its actual completed round count',()=>{
+ const {$,ctx}=setup([person('a',true)]);
+ for(const round of [1,6,12]){
+  vm.runInContext(`state.locked=true;state.live={status:'finished',currentRound:${round},isTest:false};renderHostControls();`,ctx);
+  assert.equal($('#live-title').textContent,`${round} rounds completed. Thanks for connecting.`);
+  assert(!$('#host-buttons').innerHTML.includes('data-action="next"'));
+  assert(!$('#host-buttons').innerHTML.includes('data-action="finish"'));
+  assert.match($('#host-buttons').innerHTML,/data-action="resetReal"/);
+ }
+ vm.runInContext("state.live={status:'finished',currentRound:7,completedThroughRound:6,isTest:false};renderHostControls();",ctx);
+ assert.equal($('#live-title').textContent,'6 rounds completed. Thanks for connecting.');
+});
+
+test('finishing early is available on live or paused rounds while advancing still requires the completed timer',()=>{
+ const {$,ctx}=setup([person('a',true)]);
+ for(const status of ['live','break'])for(const complete of [false,true]){
+  vm.runInContext(`state.locked=true;state.schedule={id:'synthetic-schedule'};state.live={status:'${status}',currentRound:6,isTest:false,timer:{complete:${complete}}};renderHostControls();`,ctx);
+  assert.match($('#host-buttons').innerHTML,/data-action="finish">Finish event/);
+  assert.match($('#host-buttons').innerHTML,/data-action="resetReal"/);
+  if(status==='live')assert.match($('#host-buttons').innerHTML,new RegExp(`data-action="next"${complete?'':' disabled'}>`));
+  else assert.match($('#host-buttons').innerHTML,/data-action="resume"/);
+ }
+ vm.runInContext("state.live={status:'live',currentRound:12,timer:{complete:true}};renderHostControls();",ctx);
+ assert.match($('#host-buttons').innerHTML,/data-action="finish">Finish event/);
+ assert(!$('#host-buttons').innerHTML.includes('data-action="next"'));
+});
+
+test('ending an unfinished round requires confirmation and sends the explicit end-now action',async()=>{
+ const {$,ctx,snapshot}=setup([person('a',true)]),requests=[];let confirmed=false,confirmation='';
+ ctx.window={confirm:message=>{confirmation=message;return confirmed;}};
+ ctx.fetch=async(url,options)=>{requests.push({url,body:JSON.parse(options.body)});return {ok:true,json:async()=>({roster:[person('a',true)],schedule:null,version:13,locked:true,live:{status:'finished',currentRound:7,completedThroughRound:6,isTest:false,timer:{status:'idle',complete:false}}})};};
+ vm.runInContext("state.version=12;state.locked=true;state.live={status:'live',currentRound:7,completedThroughRound:6,isTest:false,timer:{status:'idle',complete:false}};renderHostControls();",ctx);
+ const event={target:{dataset:{action:'finish'}}};
+ await $('#host-buttons').onclick(event);assert.equal(requests.length,0);assert.match(confirmation,/unfinished round stays incomplete/);assert.match(confirmation,/Personal QR links/);
+ confirmed=true;await $('#host-buttons').onclick(event);
+ assert.deepEqual(requests,[{url:'/api/control',body:{expectedVersion:12,action:'finish',endNow:true}}]);
+ assert.equal(snapshot().state.live.status,'finished');assert.equal(snapshot().state.live.timer.status,'idle');assert.equal(snapshot().state.live.completedThroughRound,6);
+ assert.equal($('#live-title').textContent,'6 rounds completed. Thanks for connecting.');
+});

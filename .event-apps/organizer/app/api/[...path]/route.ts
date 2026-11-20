@@ -36,7 +36,7 @@ function releasedParticipants(s:any,through:number){
 }
 async function finishPending(s:any){
   const p=s.pending;
-  const r=await fetch(`${env.RESULTS_URL}/api/publish`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${env.RESULTS_WRITE_KEY}`},body:JSON.stringify({expectedVersion:p.expectedPublicVersion,operationId:p.operationId,state:p.target,resetTest:!!p.resetTest,resetReal:!!p.resetReal,...p.resetReal?{}:{participantRoster:p.participantRoster||releasedParticipants(s,p.target.currentRound)}})});
+  const r=await fetch(`${env.RESULTS_URL}/api/publish`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${env.RESULTS_WRITE_KEY}`},body:JSON.stringify({expectedVersion:p.expectedPublicVersion,operationId:p.operationId,state:p.target,resetTest:!!p.resetTest,resetReal:!!p.resetReal,endNow:p.endNow===true&&p.target.status==='finished',...p.resetReal?{}:{participantRoster:p.participantRoster||releasedParticipants(s,p.target.currentRound)}})});
   const data=await r.json() as any;if(!r.ok)throw Object.assign(Error(data.error||"Could not release the round. Retry the pending action."),{status:r.status});
   return writeState({...s,...p.resetReal?{testQuestionAssignments:null}:{},pending:null,live:data,locked:data.status!=="waiting"},s.version);
 }
@@ -141,17 +141,17 @@ export async function POST(request:Request){
       if(!s.schedule)return json({error:"Generate and save a schedule before starting."},409);
       validateSchedule(s.roster,s.schedule);
       const live=await feed();let status=live.status,round=live.currentRound,isTest=live.isTest===true,resetTest=false;
-      if(['next','finish'].includes(b.action)&&!live.timer?.complete)return json({error:'The current round must run its full five-minute timer before advancing.'},409);
+      if(['next','finish'].includes(b.action)&&!live.timer?.complete&&!(b.action==='finish'&&b.endNow===true))return json({error:'The current round must run its full five-minute timer before advancing, or explicitly end the event now.'},409);
       if((b.action==="start"||b.action==="startTest")&&status==="waiting"){status="live";round=1;isTest=b.action==="startTest";}
       else if(b.action==="resetTest"&&isTest&&round>0){status="waiting";round=0;isTest=false;resetTest=true;}
       else if(b.action==="next"&&status==="live"&&round<12)round++;
       else if(b.action==="break"&&status==="live")status="break";
       else if(b.action==="resume"&&status==="break")status="live";
-      else if(b.action==="finish"&&status==="live"&&round===12)status="finished";
+      else if(b.action==="finish"&&['live','break'].includes(status)&&round>0)status="finished";
       else return json({error:"That action is unavailable for the current round."},409);
       if(b.action==="startTest")s={...s,testQuestionAssignments:randomTestQuestionAssignments(s.questionBank)};
       else if(b.action==="start"||resetTest)s={...s,testQuestionAssignments:null};
-      s=await writeState({...s,locked:true,pending:{operationId:crypto.randomUUID(),expectedPublicVersion:live.version,resetTest,target:publicSnapshot(s,status,round,isTest),participantRoster:resetTest?participants(s.roster).map(a=>({id:a.id,name:a.name})):releasedParticipants(s,round)}},s.version);
+      s=await writeState({...s,locked:true,pending:{operationId:crypto.randomUUID(),expectedPublicVersion:live.version,resetTest,endNow:b.action==='finish'&&b.endNow===true,target:publicSnapshot(s,status,round,isTest),participantRoster:resetTest?participants(s.roster).map(a=>({id:a.id,name:a.name})):releasedParticipants(s,round)}},s.version);
       return json(await finishPending(s));
     }
     return json({error:"Unknown endpoint."},404);

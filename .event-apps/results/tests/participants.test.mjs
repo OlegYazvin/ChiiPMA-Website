@@ -288,3 +288,55 @@ test('departures affect only future cards while historical links, contacts, feed
  const retained=f.token(links.find(p=>!departedIds.includes(p.id)));assert.deepEqual((await f.api.personal(retained)).rounds.map(r=>r.number),[1,2]);
  const changed=structuredClone(sanitized);changed.rounds[0].matches[0].names.reverse();assert.throws(()=>validateTransition({...f.state,currentRound:1,rounds:past},changed),/Released matches are immutable/);
 });
+
+test('an event may finish after a completed early round without changing QR identities or accumulated participant data',async()=>{
+ const f=await fixture();await f.publish(f.snapshot());await f.start();f.tick(DURATION);
+ const originalLinks=await f.links(),t=f.token(originalLinks[0]);
+ await f.api.saveContact(t,{expectedVersion:0,contacts:{email:'finished-early@example.test'}});
+ await f.api.submit(t,1,{rating:'smile',stayInTouch:false});
+ await f.publish(f.snapshot(2));await f.start();f.tick(DURATION);
+ await f.api.submit(t,2,{rating:'neutral',stayInTouch:false});
+ const before=await f.api.exportBackup(),beforePage=await f.api.personal(t),beforeLinks=await f.links(),past=structuredClone(f.state.rounds),attempt=f.state.attemptId,run=f.state.runId;
+ const finished=sanitizePublicState({...f.state,status:'finished'});assert.equal(finished.currentRound,2);
+ await f.publish(finished);
+ assert.equal(f.state.status,'finished');assert.equal(f.state.currentRound,2);assert.equal(f.state.attemptId,attempt);assert.equal(f.state.runId,run);assert.deepEqual(f.state.rounds,past);
+ const after=await f.api.exportBackup();
+ for(const table of ['participant_links','participant_contacts','conversation_responses','round_timers','qr_reservations'])assert.deepEqual(after.tables[table],before.tables[table]);
+ assert.deepEqual(await f.links(),beforeLinks);assert.deepEqual(after.participantUrls,before.participantUrls);assert.equal((await f.api.list(f.state)).accessOpen,true);
+ const page=await f.api.personal(t);assert.equal(page.status,'finished');assert.deepEqual(page.profile,beforePage.profile);assert.deepEqual(page.rounds,beforePage.rounds);assert.deepEqual(page.rounds.map(r=>r.number),[1,2]);
+ assert.equal((await f.api.feedback(f.state)).responses.length,2);
+ await f.api.submit(t,2,{rating:'neutral',stayInTouch:false});
+ await assert.rejects(f.api.submit(t,3,{rating:'smile',stayInTouch:false}),/not finished/);
+ await assert.rejects(f.publish(finished),/event is finished/);
+ const retry=await f.api.exportBackup();assert.deepEqual(retry.tables,after.tables);assert.deepEqual(retry.participantUrls,after.participantUrls);
+});
+
+test('early event finish still requires a released round and its full authoritative timer',async()=>{
+ const f=await fixture();assert.throws(()=>sanitizePublicState({...waitingState(),status:'finished'}),/Invalid event status/);
+ await f.publish(f.snapshot());
+ const finish=sanitizePublicState({...f.state,status:'finished'});assert.equal(finish.currentRound,1);
+ await assert.rejects(f.publish(finish),/full five-minute/);await f.start();f.tick(DURATION-1);
+ await assert.rejects(f.publish(finish),/full five-minute/);assert.equal(f.state.status,'live');
+ f.tick(1);await f.publish(finish);assert.equal(f.state.status,'finished');assert.equal(f.state.currentRound,1);
+ assert.equal((await f.api.publicInfo(f.state)).completedThroughRound,1);assert.equal((await f.api.publicInfo(f.state)).timer.complete,true);
+});
+
+test('explicit end now finishes an idle released round without completing its timer or touching participant records',async()=>{
+ const f=await fixture();await f.publish(f.snapshot());await f.start();f.tick(DURATION);
+ const t=f.token((await f.links())[0]);await f.api.saveContact(t,{expectedVersion:0,contacts:{email:'end-now@example.test'}});await f.api.submit(t,1,{rating:'smile',stayInTouch:false});
+ await f.publish(f.snapshot(2));
+ const previous=f.state,next=sanitizePublicState({...previous,status:'finished'}),before=await f.api.exportBackup(),beforeLinks=await f.links(),body={operationId:crypto.randomUUID(),endNow:true};
+ assert.equal((await f.api.publicInfo(previous)).completedThroughRound,1);assert.equal((await f.api.publicInfo(previous)).timer.status,'idle');
+ await assert.rejects(f.api.preparePublish(previous,next,{operationId:crypto.randomUUID()}),/full five-minute/);
+ await assert.rejects(f.api.preparePublish(previous,sanitizePublicState(f.snapshot(3)),{...body,participantRoster:f.roster}),/full five-minute/);
+ validateTransition(previous,next);const prepared=await f.api.preparePublish(previous,next,body),finished=await f.api.publish(previous,next,body,prepared);
+ assert.equal(finished.status,'finished');assert.equal(finished.currentRound,2);assert.equal(finished.attemptId,previous.attemptId);assert.deepEqual(finished.rounds,previous.rounds);
+ const after=await f.api.exportBackup();for(const table of ['participant_links','participant_contacts','conversation_responses','round_timers','qr_reservations'])assert.deepEqual(after.tables[table],before.tables[table]);
+ assert.deepEqual(after.participantUrls,before.participantUrls);assert.deepEqual(await f.api.list(finished),{participants:beforeLinks,accessOpen:true,mode:'real'});
+ const info=await f.api.publicInfo(finished);assert.equal(info.completedThroughRound,1);assert.equal(info.timer.status,'idle');assert.equal(info.timer.complete,false);
+ const page=await f.api.personal(t);assert.equal(page.status,'finished');assert.deepEqual(page.rounds.map(r=>r.number),[1]);assert.equal(page.rounds[0].response.rating,'smile');assert.equal(page.profile.contacts.email,'end-now@example.test');
+ await assert.rejects(f.api.submit(t,2,{rating:'neutral',stayInTouch:false}),/not finished/);
+ await assert.rejects(f.api.publish(previous,next,body,prepared),/round or timer changed/);
+ assert.deepEqual((await f.api.exportBackup()).tables,after.tables);
+ assert.doesNotThrow(()=>validateTransition({...previous,status:'break'},next));
+});
