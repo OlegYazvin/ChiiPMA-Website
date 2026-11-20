@@ -5,7 +5,7 @@ export function sanitizePublicState(data){
   if(!data||data.eventId!==EVENT_ID||!["waiting","live","break","finished"].includes(data.status)||!Number.isInteger(data.currentRound)||data.currentRound<0||data.currentRound>12||!Array.isArray(data.rounds)||data.rounds.length!==data.currentRound)throw Error("Invalid released state.");
   if(data.status==="waiting"&&data.currentRound!==0||data.status!=="waiting"&&data.currentRound===0||data.status==="finished"&&data.currentRound!==12)throw Error("Invalid event status.");
   if(data.isTest!==undefined&&typeof data.isTest!=="boolean"||data.status==="waiting"&&data.isTest)throw Error("Invalid test mode.");
-  const allPairs=new Set();let rosterNames=null;
+  const allPairs=new Set();let rosterNames=new Set();
   const rounds=data.rounds.map((r,i)=>{
     if(r.number!==i+1||!Array.isArray(r.matches)||!r.matches.length||r.matches.length>STATION_COUNT)throw Error("Invalid round.");
     const seen=new Set(),stations=new Set();
@@ -17,7 +17,7 @@ export function sanitizePublicState(data){
       const station=m.station===undefined?j+1:m.station;if(!Number.isInteger(station)||station<1||station>STATION_COUNT||stations.has(station))throw Error(`Stations must be unique numbers from 1 through ${STATION_COUNT}.`);stations.add(station);
       return {pairNumber:j+1,station,names};
     });
-    const names=[...seen].sort().join("\u0000");if(rosterNames!==null&&names!==rosterNames)throw Error("Released roster changed.");rosterNames=names;
+    if([...rosterNames].some(name=>!seen.has(name)))throw Error("Released attendees cannot be removed from later rounds.");rosterNames=seen;
     if(r.leadQuestion!=null&&(typeof r.leadQuestion!=="string"||!r.leadQuestion.trim()||r.leadQuestion.length>1000))throw Error("Invalid lead question.");
     return {number:i+1,...r.leadQuestion!=null?{leadQuestion:r.leadQuestion.trim()}:{},matches};
   });

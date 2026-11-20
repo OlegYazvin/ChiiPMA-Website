@@ -10,6 +10,7 @@ import {startAdminTimer} from "../../../lib/admin-timer.mjs";
 import {reserveQrPeople,validateQrSlots} from "../../../lib/qr-slots.mjs";
 import {assignExistingQrCard,reservedCardRows,validateExistingQrAssignments} from "../../../lib/reserved-card-assignment.mjs";
 import {listPrivateFiles,uploadPrivateFile,downloadPrivateFile} from "../../../lib/private-library.mjs";
+import {queueLateJoin} from "../../../lib/late-join.mjs";
 export const dynamic="force-dynamic";
 function json(d:any,status=200){return Response.json(d,{status,headers:{"Cache-Control":"no-store"}});}
 async function feed(){
@@ -28,9 +29,13 @@ async function syncReservedPages(s:any){
 async function savedWithReservedPages(s:any){
  try{await syncReservedPages(s);return s;}catch{return {...s,qrSyncWarning:'Attendee saved. Reserved QR updates are pending; open Personal pages to retry.'};}
 }
+function releasedParticipants(s:any,through:number){
+ const ids=new Set(s.schedule.rounds.slice(0,through).flatMap((r:any)=>r.pairs.flat()));
+ return s.roster.filter((a:any)=>ids.has(a.id)).map((a:any)=>({id:a.id,name:a.name}));
+}
 async function finishPending(s:any){
   const p=s.pending;
-  const r=await fetch(`${env.RESULTS_URL}/api/publish`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${env.RESULTS_WRITE_KEY}`},body:JSON.stringify({expectedVersion:p.expectedPublicVersion,operationId:p.operationId,state:p.target,resetTest:!!p.resetTest,resetReal:!!p.resetReal,...p.resetReal?{}:{participantRoster:p.participantRoster||participants(s.roster).map(a=>({id:a.id,name:a.name}))}})});
+  const r=await fetch(`${env.RESULTS_URL}/api/publish`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${env.RESULTS_WRITE_KEY}`},body:JSON.stringify({expectedVersion:p.expectedPublicVersion,operationId:p.operationId,state:p.target,resetTest:!!p.resetTest,resetReal:!!p.resetReal,...p.resetReal?{}:{participantRoster:p.participantRoster||releasedParticipants(s,p.target.currentRound)}})});
   const data=await r.json() as any;if(!r.ok)throw Object.assign(Error(data.error||"Could not release the round. Retry the pending action."),{status:r.status});
   return writeState({...s,...p.resetReal?{testQuestionAssignments:null}:{},pending:null,live:data,locked:data.status!=="waiting"},s.version);
 }
@@ -74,7 +79,7 @@ export async function POST(request:Request){
       },
     }));
     if(path==='/api/participant-admin'){
-      if(b.action==='sync')return json(await participantService('provision',{mode:b.mode==='test'?'test':'real',participants:participants(s.roster).map(a=>({id:a.id,name:a.name}))}));
+      if(b.action==='sync')return json(await participantService('provision',{mode:b.mode==='test'?'test':'real',participants:s.live?.currentRound>0?releasedParticipants(s,s.live.currentRound):participants(s.roster).map(a=>({id:a.id,name:a.name}))}));
       if(b.action==='hostLink')return json(await participantService('host-session',{}));
       if(b.action==='access')return json(await participantService('access',{open:b.open}));
       return json({error:'Unknown participant action.'},400);
@@ -109,6 +114,12 @@ export async function POST(request:Request){
       let schedule=null;if(b.schedule){validateSchedule(roster,b.schedule);const planned=assignStations(b.schedule,roster),metrics=validateSchedule(roster,planned);schedule={id:String(planned.id).slice(0,100),seed:Number(planned.seed),rounds:planned.rounds,stationPlan:planned.stationPlan,method:String(planned.method||"Generated").slice(0,100),optimizationStatus:String(planned.optimizationStatus||"feasible").slice(0,40),metrics};}
       return json(await savedWithReservedPages(await writeState({...s,roster,schedule},s.version)));
     }
+    if(path==="/api/late-join"){
+      const live=await feed();
+      if(b.expectedPublicVersion!==live.version)return json({error:"The released round changed. Refresh and retry the late arrivals."},409);
+      const next=queueLateJoin(s,live,b.ids);
+      return json(await writeState(next,s.version));
+    }
     if(path==="/api/control"){
       if(s.pending){
         if(b.action!=='resetReal')return json(await finishPending(s));
@@ -134,7 +145,7 @@ export async function POST(request:Request){
       else return json({error:"That action is unavailable for the current round."},409);
       if(b.action==="startTest")s={...s,testQuestionAssignments:randomTestQuestionAssignments(s.questionBank)};
       else if(b.action==="start"||resetTest)s={...s,testQuestionAssignments:null};
-      s=await writeState({...s,locked:true,pending:{operationId:crypto.randomUUID(),expectedPublicVersion:live.version,resetTest,target:publicSnapshot(s,status,round,isTest),participantRoster:participants(s.roster).map(a=>({id:a.id,name:a.name}))}},s.version);
+      s=await writeState({...s,locked:true,pending:{operationId:crypto.randomUUID(),expectedPublicVersion:live.version,resetTest,target:publicSnapshot(s,status,round,isTest),participantRoster:resetTest?participants(s.roster).map(a=>({id:a.id,name:a.name})):releasedParticipants(s,round)}},s.version);
       return json(await finishPending(s));
     }
     return json({error:"Unknown endpoint."},404);

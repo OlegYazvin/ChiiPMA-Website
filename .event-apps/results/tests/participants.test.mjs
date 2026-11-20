@@ -213,3 +213,51 @@ test('a complete protected backup includes persisted profiles, responses, timers
  assert.equal(backup.participantUrls.find(p=>p.id===links[0].id).url,links[0].url);assert.deepEqual(backup.reservePages,cards.reservePages);
  assert(!JSON.stringify(backup).includes('synthetic-test-only-key'));assert.equal(JSON.parse(backup.tables.participant_contacts[0].body).email,'backup@example.test');assert.deepEqual(await f.api.personal(token),before);
 });
+
+test('late arrivals join only the next round without changing existing codes, contacts, responses or timers',async()=>{
+ const f=await fixture(),late=[{id:'late-synthetic-one',name:'Late Synthetic One'},{id:'late-synthetic-two',name:'Late Synthetic Two'}];
+ await f.api.syncRoster(f.state,[...f.roster,late[0]]);
+ const inactiveToken=f.token((await f.links()).find(p=>p.id===late[0].id));
+ await f.api.saveContact(inactiveToken,{expectedVersion:0,contacts:{email:'late@example.test'}});
+ await f.publish(f.snapshot());
+ const firstLinks=await f.links(),oldToken=f.token(firstLinks[0]);
+ await f.api.saveContact(oldToken,{expectedVersion:0,contacts:{email:'existing@example.test'}});
+ await f.start();f.tick(DURATION);await f.api.submit(oldToken,1,{rating:'smile',stayInTouch:false});
+ const before=await f.api.exportBackup(),past=structuredClone(f.state.rounds),attempt=f.state.attemptId;
+ f.roster.push(...late);f.rounds[1].matches.push({pairNumber:8,station:8,names:late.map(p=>p.name)});
+ const next=sanitizePublicState(f.snapshot(2));await f.publish(next);
+ assert.deepEqual(f.state.rounds.slice(0,1),past);assert.equal(f.state.attemptId,attempt);
+ const after=await f.api.exportBackup();
+ for(const table of ['participant_contacts','conversation_responses','round_timers','qr_reservations'])assert.deepEqual(after.tables[table],before.tables[table]);
+ for(const row of before.tables.participant_links){const saved=after.tables.participant_links.find(r=>r.id===row.id);assert.deepEqual({...saved},{...row,active:1});}
+ for(const link of firstLinks)assert.equal((await f.links()).find(p=>p.id===link.id).url,link.url);
+ const links=await f.links(),tokens=late.map(p=>f.token(links.find(l=>l.id===p.id)));
+ assert.equal(tokens[0],inactiveToken);assert.equal((await f.api.personal(tokens[0])).profile.contacts.email,'late@example.test');
+ for(const token of tokens){assert.deepEqual((await f.api.personal(token)).rounds,[]);await assert.rejects(f.api.submit(token,1,{rating:'neutral',stayInTouch:false}),/not finished/);}
+ assert.equal((await f.api.personal(oldToken)).rounds[0].response.rating,'smile');
+ assert.equal((await f.api.publicInfo(f.state)).timer.status,'idle');await f.start();f.tick(DURATION);
+ for(const [i,token] of tokens.entries()){const page=await f.api.personal(token);assert.deepEqual(page.rounds.map(r=>r.number),[2]);assert.equal(page.rounds[0].partner,late[1-i].name);}
+});
+
+test('started provisioning stays frozen and a next-round addition cannot replace any historical identity',async()=>{
+ const f=await fixture(),late=[{id:'late-synthetic-one',name:'Late Synthetic One'},{id:'late-synthetic-two',name:'Late Synthetic Two'}];
+ await f.publish(f.snapshot());await f.start();f.tick(DURATION);
+ const roster=[...f.roster,...late],next=f.snapshot(2);next.rounds=structuredClone(next.rounds);next.rounds[1].matches.push({pairNumber:8,station:8,names:late.map(p=>p.name)});
+ await assert.rejects(f.api.syncRoster(f.state,roster),/roster is frozen/);
+ const prepare=participantRoster=>f.api.preparePublish(f.state,next,{operationId:crypto.randomUUID(),participantRoster});
+ await assert.rejects(prepare(roster.map((p,i)=>i? p:{...p,id:'replacement-id'})),/identities cannot be replaced/);
+ await assert.rejects(prepare(roster.filter((p,i)=>i)),/roster is frozen/);
+ const before=await f.api.exportBackup();assert.equal(before.tables.participant_links.length,14);assert.equal((await f.links()).length,14);
+});
+
+test('released membership may grow but cannot shrink, repeat pairs or change already released rounds',async()=>{
+ const f=await fixture(),next=f.snapshot(2);next.rounds=structuredClone(next.rounds);
+ next.rounds[1].matches.push({pairNumber:8,station:8,names:['Late Synthetic One','Late Synthetic Two']});
+ assert.equal(sanitizePublicState(next).rounds[1].matches.length,8);
+ const removed=structuredClone(next);removed.rounds[1].matches.pop();removed.rounds[0].matches.push({pairNumber:8,station:8,names:['Late Synthetic One','Late Synthetic Two']});
+ assert.throws(()=>sanitizePublicState(removed),/cannot be removed/);
+ const repeated=structuredClone(next);repeated.rounds[1].matches[0].names=[...repeated.rounds[0].matches[0].names];
+ assert.throws(()=>sanitizePublicState(repeated),/Repeated public pair|Duplicate attendee/);
+ const changed=structuredClone(next);changed.rounds[0].leadQuestion='Changed question';
+ assert.throws(()=>validateTransition(f.snapshot(),changed),/Released matches are immutable/);
+});

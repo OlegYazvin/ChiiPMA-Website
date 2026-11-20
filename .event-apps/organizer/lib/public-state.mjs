@@ -17,7 +17,7 @@ export function sanitizePublicState(data){
       const station=m.station===undefined?j+1:m.station;if(!Number.isInteger(station)||station<1||station>STATION_COUNT||stations.has(station))throw Error(`Stations must be unique numbers from 1 through ${STATION_COUNT}.`);stations.add(station);
       return {pairNumber:j+1,station,names};
     });
-    const names=[...seen].sort().join("\u0000");if(rosterNames!==null&&names!==rosterNames)throw Error("Released roster changed.");rosterNames=names;
+    if(rosterNames!==null&&[...rosterNames].some(name=>!seen.has(name)))throw Error("Released attendees cannot be removed.");rosterNames=seen;
     if(r.leadQuestion!=null&&(typeof r.leadQuestion!=="string"||!r.leadQuestion.trim()||r.leadQuestion.length>1000))throw Error("Invalid lead question.");
     return {number:i+1,...r.leadQuestion!=null?{leadQuestion:r.leadQuestion.trim()}:{},matches};
   });

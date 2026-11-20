@@ -72,7 +72,7 @@ export class ParticipantService{
   await this.stmt('INSERT OR IGNORE INTO event_runs (id,kind,state_json,access_open) VALUES (?,?,?,1)',id,kind,JSON.stringify(state)).run();
   return this.first('SELECT * FROM event_runs WHERE id=?',id);
  }
- async syncRoster(state,roster,mode='real',explicitRunId=null){
+ async syncRoster(state,roster,mode='real',explicitRunId=null,{allowAdditions=false}={}){
   if(!Array.isArray(roster)||!roster.length||roster.length>STATION_COUNT*2)fail('Provide the actual scheduled participants.');
   const ids=new Set(),names=new Set();
   for(const a of roster){if(!a||typeof a.id!=='string'||!a.id||a.id.length>100||typeof a.name!=='string'||!a.name.trim()||a.name.length>180||ids.has(a.id)||names.has(a.name))fail('Participant IDs and names must be unique.');ids.add(a.id);names.add(a.name);}
@@ -80,10 +80,21 @@ export class ParticipantService{
   if(!runId||mode==='test'&&!state.isTest)fail('Start a rehearsal before generating test links.',409);
   const run=await this.ensureRun(runId,mode,mode==='test'?state:waitingState());
   const oldState=JSON.parse(run.state_json);
-  if(oldState.currentRound>0){const expected=new Set(oldState.rounds[0].matches.flatMap(p=>p.names));if(expected.size!==names.size||[...expected].some(n=>!names.has(n)))fail('The started participant roster is frozen.',409);}
+  if(oldState.currentRound>0){
+   if(allowAdditions&&(state.currentRound!==oldState.currentRound+1||JSON.stringify(state.rounds.slice(0,oldState.currentRound))!==JSON.stringify(oldState.rounds)))fail('Late arrivals may only join the next unreleased round.',409);
+   const expected=new Set((allowAdditions?state:oldState).rounds.flatMap(r=>r.matches.flatMap(p=>p.names)));
+   if(expected.size!==names.size||[...expected].some(n=>!names.has(n)))fail('The started participant roster is frozen.',409);
+  }
   const existing=await this.all('SELECT * FROM participant_links WHERE run_id=?',runId),byId=new Map(existing.map(a=>[a.participant_id,a]));
-  if(oldState.currentRound>0&&existing.some(a=>a.active)&&roster.some(a=>!byId.get(a.id)?.active||byId.get(a.id).name!==a.name))fail('Started participant identities cannot be replaced.',409);
-  const statements=[this.stmt('UPDATE participant_links SET active=0 WHERE run_id=?',runId)];
+  if(oldState.currentRound>0&&existing.some(a=>a.active)){
+   const proposed=new Map(roster.map(a=>[a.id,a]));
+   const replaced=roster.some(a=>{
+    const old=byId.get(a.id);
+    return allowAdditions?(old&&old.name!==a.name)||existing.some(other=>other.name===a.name&&other.participant_id!==a.id):!old?.active||old.name!==a.name;
+   });
+   if(existing.some(a=>a.active&&proposed.get(a.participant_id)?.name!==a.name)||replaced)fail('Started participant identities cannot be replaced.',409);
+  }
+  const statements=oldState.currentRound>0?[]:[this.stmt('UPDATE participant_links SET active=0 WHERE run_id=?',runId)];
   for(const a of roster){let link=byId.get(a.id);if(!link){link={id:await hash(JSON.stringify([runId,a.id])),run_id:runId,participant_id:a.id,name:a.name,nonce:random()};link.token_hash=await hash(await this.token(link));}
    statements.push(this.stmt('INSERT INTO participant_links (id,run_id,participant_id,name,nonce,token_hash,active) VALUES (?,?,?,?,?,?,1) ON CONFLICT(id) DO UPDATE SET name=excluded.name,active=1',link.id,runId,a.id,a.name.trim(),link.nonce,link.token_hash));
   }
@@ -200,7 +211,7 @@ export class ParticipantService{
   const oldRun=activeRun(previous),runId=next.status==='waiting'?null:previous.status==='waiting'?(next.isTest?`test-${body.operationId}`:REAL_RUN):oldRun;
   const timer=oldRun?await this.first('SELECT * FROM round_timers WHERE run_id=? AND round=?',oldRun,previous.currentRound):null;
   if(previous.currentRound>0&&!body.resetTest&&!body.resetReal&&(next.currentRound>previous.currentRound||next.status==='finished')&&!timerView(timer,previous.currentRound,this.now()).complete)fail('The current round must run its full five-minute timer before advancing.',409);
-  if(runId){if(!body.participantRoster)fail('The host must sync the scheduled participants before releasing this round.',409);await this.syncRoster({...next,runId},body.participantRoster,next.isTest?'test':'real',runId);}
+  if(runId){if(!body.participantRoster)fail('The host must sync the scheduled participants before releasing this round.',409);await this.syncRoster({...next,runId},body.participantRoster,next.isTest?'test':'real',runId,{allowAdditions:previous.currentRound>0&&next.currentRound===previous.currentRound+1&&!body.resetTest&&!body.resetReal});}
   const real=await this.first('SELECT state_json FROM event_runs WHERE id=?',REAL_RUN),realAttemptId=body.resetReal?`real-${body.operationId}`:real?JSON.parse(real.state_json).attemptId||REAL_RUN:REAL_RUN;
   return {runId,oldRun,timer,realAttemptId};
  }
