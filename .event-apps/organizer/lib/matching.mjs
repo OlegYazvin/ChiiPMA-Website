@@ -26,12 +26,12 @@ export function normalizeRoster(input) {
   for (const key of ["parityReserve","studentPairAnchor","unemployedMatchingPriority"]) if(rows.filter(a=>a[key]).length>1) throw Error(`Only one attendee may have ${key}.`);
   return rows;
 }
-function includedParticipants(roster) {
+function includedParticipants(roster,minimum=14) {
   const regular=roster.filter(a=>a.included&&!a.parityReserve);
   const reserve=roster.find(a=>a.parityReserve&&a.included);
   if (regular.length%2 && reserve) regular.push(reserve);
   if(regular.length%2) throw Error("An even roster is required. Include the parity reserve or add another attendee.");
-  if(regular.length<14) throw Error("Twelve unique partners require at least 14 attendees with an even roster.");
+  if(regular.length<minimum) throw Error(minimum===14?"Twelve unique partners require at least 14 attendees with an even roster.":"At least two active attendees are required.");
   if(regular.length>STATION_COUNT*2)throw Error(`${STATION_COUNT} stations accommodate at most ${STATION_COUNT*2} attendees. Update attendance before generating.`);
   return regular;
 }
@@ -41,14 +41,31 @@ export function participants(roster) {
   return regular;
 }
 export function scheduledParticipants(roster,schedule) {
-  if(schedule?.participationStarts===undefined)return participants(roster);
-  const starts=schedule.participationStarts,people=includedParticipants(roster),ids=new Set(people.map(a=>a.id));
-  if(!starts||typeof starts!=='object'||Array.isArray(starts)||Object.keys(starts).length!==2)throw Error('Late-arrival participation must identify two attendees.');
-  for(const [id,round] of Object.entries(starts))if(!ids.has(id)||!Number.isInteger(round)||round<2||round>ROUNDS)throw Error('Invalid late-arrival participation start.');
-  if(new Set(Object.values(starts)).size!==1)throw Error('The two late arrivals must begin in the same round.');
+  if(schedule?.participationStarts===undefined&&schedule?.participationEnds===undefined)return participants(roster);
+  const starts=schedule.participationStarts,ends=schedule.participationEnds,people=includedParticipants(roster,2),byId=new Map(roster.map(a=>[a.id,a]));
+  if(ends!==undefined){
+    if(!ends||typeof ends!=='object'||Array.isArray(ends)||Object.keys(ends).length!==2)throw Error('Departures must identify two attendees.');
+    for(const [id,round] of Object.entries(ends)){
+      const attendee=byId.get(id);
+      if(!attendee||attendee.included||!Number.isInteger(round)||round<2||round>ROUNDS||round<=startsInRound(starts,id))throw Error('Invalid departure participation end.');
+      if(!people.some(a=>a.id===id))people.push(attendee);
+    }
+    if(new Set(Object.values(ends)).size!==1)throw Error('The two departures must begin in the same round.');
+  }
+  const ids=new Set(people.map(a=>a.id));
+  if(starts!==undefined){
+    if(!starts||typeof starts!=='object'||Array.isArray(starts)||Object.keys(starts).length!==2)throw Error('Late-arrival participation must identify two attendees.');
+    for(const [id,round] of Object.entries(starts))if(!ids.has(id)||!Number.isInteger(round)||round<2||round>ROUNDS)throw Error('Invalid late-arrival participation start.');
+    if(new Set(Object.values(starts)).size!==1)throw Error('The two late arrivals must begin in the same round.');
+  }
   return people;
 }
 const startsInRound=(starts,id)=>starts&&Object.hasOwn(starts,id)?starts[id]:1;
+const endsInRound=(ends,id)=>ends&&Object.hasOwn(ends,id)?ends[id]:ROUNDS+1;
+export function roundParticipants(roster,schedule,round){
+  if(!Number.isInteger(round)||round<1||round>ROUNDS)throw Error('Choose a round from 1 through 12.');
+  return scheduledParticipants(roster,schedule).filter(a=>startsInRound(schedule?.participationStarts,a.id)<=round&&round<endsInRound(schedule?.participationEnds,a.id));
+}
 export function sameTeam(a,b){return !!a.teamId&&a.teamId===b.teamId;}
 export function studentPairAllowed(a,b){return !a.isMpdStudent||!b.isMpdStudent||(a.studentPairGroup==null&&b.studentPairGroup==null)||!!(a.studentPairGroup&&b.studentPairGroup&&a.studentPairGroup!==b.studentPairGroup);}
 export function pairAllowed(a,b){return !sameTeam(a,b)&&studentPairAllowed(a,b)&&(!a.studentOnlyPartners||b.isMpdStudent)&&(!b.studentOnlyPartners||a.isMpdStudent);}
@@ -65,8 +82,9 @@ export function careerPair(a,b) {
   const p=s===a?b:a;
   return !!s && !p.isStudent && !p.isMpdStudent && p.jobs.includes("Product Management") && p.level!=="People leader" && LEVELS.indexOf(p.level)>=0 && LEVELS.indexOf(s.level)>LEVELS.indexOf(p.level);
 }
-export function measure(roster, rounds, participationStarts) {
-  const people=participationStarts?scheduledParticipants(roster,{participationStarts}):participants(roster), byId=new Map(people.map(a=>[a.id,a]));
+export function measure(roster, rounds, participationStarts,participationEnds) {
+  const dynamic=participationStarts!==undefined||participationEnds!==undefined,people=dynamic?scheduledParticipants(roster,{participationStarts,participationEnds}):participants(roster), byId=new Map(people.map(a=>[a.id,a]));
+  const activeInRound=round=>people.filter(a=>startsInRound(participationStarts,a.id)<=round&&round<endsInRound(participationEnds,a.id)),finalPeople=activeInRound(ROUNDS);
   const grouped=usesStudentGroups(people),alternating=grouped?null:people.find(a=>a.studentPairAnchor&&a.alternateStudentPartners);
   const covered=new Set();let studentPairs=0,nonStudentPairs=0,anchorPairs=0,currentLeaderPairs=0,priorityUnemployedPairs=0,careerPairs=0;
   for(const r of rounds) for(const [ai,bi] of r.pairs){
@@ -82,22 +100,22 @@ export function measure(roster, rounds, participationStarts) {
   const currentS=people.filter(a=>a.isMpdStudent&&a.currentPeopleLeader).length,currentN=people.filter(a=>!a.isMpdStudent&&a.currentPeopleLeader).length;
   const current=people.filter(a=>a.currentPeopleLeader).length;
   const extra=extraStudentPairs(people,alternating);
-  const minimumStudentPairs=participationStarts?rounds.reduce((total,r)=>{const active=people.filter(a=>startsInRound(participationStarts,a.id)<=r.number),students=active.filter(a=>a.isMpdStudent).length;return total+Math.max(0,students-active.length/2);},0):alternating?ROUNDS/2+ROUNDS*extra:ROUNDS*Math.max(0,(s-n)/2);
+  const minimumStudentPairs=dynamic?rounds.reduce((total,r)=>{const active=activeInRound(r.number),students=active.filter(a=>a.isMpdStudent).length;return total+Math.max(0,students-active.length/2);},0):alternating?ROUNDS/2+ROUNDS*extra:ROUNDS*Math.max(0,(s-n)/2);
   const leaders=people.filter(a=>a.currentPeopleLeader),permittedLeaderPairs=leaders.reduce((total,a,i)=>total+leaders.slice(i+1).filter(b=>pairAllowed(a,b)).length,0);
-  const currentLeaderUpperBound=participationStarts?Math.min(permittedLeaderPairs,rounds.reduce((total,r)=>total+Math.floor(people.filter(a=>a.currentPeopleLeader&&startsInRound(participationStarts,a.id)<=r.number).length/2),0)):grouped?Math.min(permittedLeaderPairs,ROUNDS*Math.floor(current/2)):alternating&&s>=n&&!alternating.currentPeopleLeader?Math.min(current*(current-1)/2,ROUNDS*Math.floor(current/2),currentS*currentN+Math.min(ROUNDS/2,currentN*(currentN-1)/2)+Math.min(ROUNDS*extra,currentS*(currentS-1)/2)):studentPairs===minimumStudentPairs&&s>=n&&!people.some(a=>a.studentPairAnchor&&a.currentPeopleLeader) ? currentS*currentN : Math.min(current*(current-1)/2,ROUNDS*Math.floor(current/2));
+  const currentLeaderUpperBound=dynamic?Math.min(permittedLeaderPairs,rounds.reduce((total,r)=>total+Math.floor(activeInRound(r.number).filter(a=>a.currentPeopleLeader).length/2),0)):grouped?Math.min(permittedLeaderPairs,ROUNDS*Math.floor(current/2)):alternating&&s>=n&&!alternating.currentPeopleLeader?Math.min(current*(current-1)/2,ROUNDS*Math.floor(current/2),currentS*currentN+Math.min(ROUNDS/2,currentN*(currentN-1)/2)+Math.min(ROUNDS*extra,currentS*(currentS-1)/2)):studentPairs===minimumStudentPairs&&s>=n&&!people.some(a=>a.studentPairAnchor&&a.currentPeopleLeader) ? currentS*currentN : Math.min(current*(current-1)/2,ROUNDS*Math.floor(current/2));
   const stationMetrics=measureStations(rounds);
-  if(participationStarts&&stationMetrics.stationCount){
+  if(dynamic&&stationMetrics.stationCount){
     let transitions=0,maximumStationStays=0;
     for(let i=1;i<rounds.length;i++){const previous=new Set(rounds[i-1].pairs.flat());transitions+=rounds[i].pairs.flat().filter(id=>previous.has(id)).length;maximumStationStays+=Math.min(rounds[i-1].pairs.length,rounds[i].pairs.length);}
     Object.assign(stationMetrics,{activeStations:rounds.at(-1).pairs.length,maximumStationStays,stationMovements:transitions-stationMetrics.stationStays});
   }
-  return {participants:people.length,pairsPerRound:people.length/2,studentPairs,nonStudentPairs,minimumStudentPairs,anchorPairs,studentGroupRule:grouped,alternatingAnchorId:alternating?.id??null,additionalStudentPairsPerRound:extra,currentLeaderPairs,currentLeaderUpperBound,leadersCovered:covered.size,totalLeaders:people.filter(a=>a.level==="People leader").length,priorityUnemployedPairs,careerPairs,uncoveredLeaderIds:people.filter(a=>a.level==="People leader"&&!covered.has(a.id)).map(a=>a.id),...stationMetrics};
+  return {participants:finalPeople.length,pairsPerRound:finalPeople.length/2,studentPairs,nonStudentPairs,minimumStudentPairs,anchorPairs,studentGroupRule:grouped,alternatingAnchorId:alternating?.id??null,additionalStudentPairsPerRound:extra,currentLeaderPairs,currentLeaderUpperBound,leadersCovered:covered.size,totalLeaders:people.filter(a=>a.level==="People leader").length,priorityUnemployedPairs,careerPairs,uncoveredLeaderIds:people.filter(a=>a.level==="People leader"&&!covered.has(a.id)).map(a=>a.id),...stationMetrics};
 }
 export function validateSchedule(roster,schedule) {
-  const people=scheduledParticipants(roster,schedule),byId=new Map(people.map(a=>[a.id,a])),used=new Set(),starts=schedule?.participationStarts;
+  const people=scheduledParticipants(roster,schedule),byId=new Map(people.map(a=>[a.id,a])),used=new Set(),starts=schedule?.participationStarts,ends=schedule?.participationEnds;
   if(!schedule || !Array.isArray(schedule.rounds)||schedule.rounds.length!==ROUNDS) throw Error("A schedule must contain exactly twelve rounds.");
   schedule.rounds.forEach((r,i)=>{
-    const ids=new Set(people.filter(a=>startsInRound(starts,a.id)<=i+1).map(a=>a.id));
+    const ids=new Set(people.filter(a=>startsInRound(starts,a.id)<=i+1&&i+1<endsInRound(ends,a.id)).map(a=>a.id));
     if(r.number!==i+1 || !Array.isArray(r.pairs)||r.pairs.length!==ids.size/2) throw Error(`Round ${i+1} is incomplete.`);
     const seen=new Set();
     for(const pair of r.pairs){
@@ -120,7 +138,7 @@ export function validateSchedule(roster,schedule) {
       if(additional!==extra)throw Error(extra?"Each round must have exactly one additional student–student pair.":"Only the alternating anchor may have a student–student match.");
     }
   }
-  return measure(roster,schedule.rounds,starts);
+  return measure(roster,schedule.rounds,starts,ends);
 }
 export function rng(seed=1) { let s=(Number(seed)>>>0)||1;return ()=>{s^=s<<13;s^=s>>>17;s^=s<<5;return (s>>>0)/4294967296;}; }
 export function shuffle(a,random){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}

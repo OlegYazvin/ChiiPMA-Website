@@ -11,6 +11,7 @@ import {reserveQrPeople,validateQrSlots} from "../../../lib/qr-slots.mjs";
 import {assignExistingQrCard,reservedCardRows,validateExistingQrAssignments} from "../../../lib/reserved-card-assignment.mjs";
 import {listPrivateFiles,uploadPrivateFile,downloadPrivateFile} from "../../../lib/private-library.mjs";
 import {queueLateJoin} from "../../../lib/late-join.mjs";
+import {queueWithdrawals} from "../../../lib/withdrawals.mjs";
 export const dynamic="force-dynamic";
 function json(d:any,status=200){return Response.json(d,{status,headers:{"Cache-Control":"no-store"}});}
 async function feed(){
@@ -119,6 +120,11 @@ export async function POST(request:Request){
       if(b.expectedPublicVersion!==live.version)return json({error:"The released round changed. Refresh and retry the late arrivals."},409);
       const next=queueLateJoin(s,live,b.ids);
       return json(await writeState(next,s.version));
+    }
+    if(path==="/api/withdrawals"){
+      const live=await feed();
+      if(b.expectedPublicVersion!==live.version)return json({error:"The released round changed. Refresh and regenerate the remaining rounds."},409);
+      return json(await writeState(queueWithdrawals(s,live,b.ids,b.rounds),s.version));
     }
     if(path==="/api/control"){
       if(s.pending){
